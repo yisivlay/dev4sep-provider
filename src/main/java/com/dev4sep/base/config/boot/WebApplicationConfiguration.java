@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.config.boot;
 
+import com.dev4sep.base.config.Properties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -24,6 +25,7 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 /**
@@ -38,6 +40,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
         GsonAutoConfiguration.class,
         JdbcTemplateAutoConfiguration.class,
         LiquibaseAutoConfiguration.class})
+@Import({Properties.class})
 @ComponentScan(basePackages = "com.dev4sep.base.**")
 public abstract class WebApplicationConfiguration {
 }

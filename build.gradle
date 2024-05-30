@@ -30,8 +30,13 @@ dependencies {
 		exclude group: 'org.hibernate.validator', module: 'hibernate-validator'
 		exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
 	}
+	implementation 'org.apache.commons:commons-lang3'
+	implementation 'org.jetbrains:annotations:23.0.0'
+	implementation 'org.eclipse.persistence:eclipselink:4.0.3'
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
