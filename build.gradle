@@ -22,7 +22,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.flywaydb:flyway-mysql'
+	implementation 'org.springframework.batch:spring-batch-integration'
 	implementation 'org.glassfish.jersey.media:jersey-media-multipart'
 	implementation('org.springframework.boot:spring-boot-starter-jersey') {
 		exclude group: 'org.glassfish.hk2.external', module: 'aopalliance-repackaged'
@@ -34,12 +34,23 @@ dependencies {
 	implementation 'org.jetbrains:annotations:23.0.0'
 	implementation 'org.eclipse.persistence:eclipselink:4.0.3'
 	implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
+	implementation 'org.liquibase:liquibase-core:4.28.0'
+	implementation 'com.google.guava:guava:10.0.1'
+	implementation 'com.github.spotbugs:spotbugs-annotations'
 
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+bootJar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	manifest {
+		attributes('Main-Class': 'org.springframework.boot.loader.launch.PropertiesLauncher', 'Implementation-Title': 'Apache Fineract', 'Implementation-Version': project.version)
+	}
+	archiveClassifier = ''
 }
 
 tasks.named('test') {

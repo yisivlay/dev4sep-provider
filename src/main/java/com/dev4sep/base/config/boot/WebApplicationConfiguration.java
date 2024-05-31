@@ -16,23 +16,29 @@
 package com.dev4sep.base.config.boot;
 
 import com.dev4sep.base.config.Properties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.gson.GsonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * @author YISivlay
  */
+@Slf4j
 @Configuration
 @EnableWebSecurity
+@EnableTransactionManagement
 @EnableAutoConfiguration(exclude = {
         DataSourceAutoConfiguration.class,
         HibernateJpaAutoConfiguration.class,
@@ -40,7 +46,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
         GsonAutoConfiguration.class,
         JdbcTemplateAutoConfiguration.class,
         LiquibaseAutoConfiguration.class})
-@Import({Properties.class})
+@Import({Properties.class, LiquibaseProperties.class})
 @ComponentScan(basePackages = "com.dev4sep.base.**")
+@IntegrationComponentScan(basePackages = "com.dev4sep.base.**")
 public abstract class WebApplicationConfiguration {
+
 }

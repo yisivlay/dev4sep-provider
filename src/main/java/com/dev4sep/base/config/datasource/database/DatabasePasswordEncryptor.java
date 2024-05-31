@@ -31,33 +31,12 @@ import java.util.Optional;
 @Component
 public class DatabasePasswordEncryptor implements PasswordEncryptor {
 
-    public static final String DEFAULT_ENCRYPTION = "AES/CBC/PKCS5Padding";
-
+    public final static String DEFAULT_ENCRYPTION = "AES/CBC/PKCS5Padding";
     private final Properties properties;
 
     @Autowired
     public DatabasePasswordEncryptor(Properties properties) {
         this.properties = properties;
-    }
-
-    private static String getPasswordHash(String masterPassword) {
-        return BCrypt.hashpw(masterPassword.getBytes(StandardCharsets.UTF_8), BCrypt.gensalt());
-    }
-
-    public String getMasterPasswordHash() {
-        var masterPassword = Optional.ofNullable(properties)
-                .map(Properties::getTenant)
-                .map(Properties.TenantProperties::getMasterPassword)
-                .orElse(properties.getDatabase().getDefaultMasterPassword());
-        return getPasswordHash(masterPassword);
-    }
-
-    public boolean isMasterPasswordHashValid(String hashed) {
-        var masterPassword = Optional.ofNullable(properties)
-                .map(Properties::getTenant)
-                .map(Properties.TenantProperties::getMasterPassword)
-                .orElse(properties.getDatabase().getDefaultMasterPassword());
-        return BCrypt.checkpw(masterPassword, hashed);
     }
 
     @Override
@@ -78,5 +57,25 @@ public class DatabasePasswordEncryptor implements PasswordEncryptor {
         var encryption = Optional.ofNullable(properties.getTenant())
                 .map(Properties.TenantProperties::getEncryption).orElse(DEFAULT_ENCRYPTION);
         return EncryptionUtil.decryptFromBase64(encryption, masterPassword, encryptedPassword);
+    }
+
+    private static String getPasswordHash(String masterPassword) {
+        return BCrypt.hashpw(masterPassword.getBytes(StandardCharsets.UTF_8), BCrypt.gensalt());
+    }
+
+    public String getMasterPasswordHash() {
+        var masterPassword = Optional.ofNullable(properties)
+                .map(Properties::getTenant)
+                .map(Properties.TenantProperties::getMasterPassword)
+                .orElse(properties.getDatabase().getDefaultMasterPassword());
+        return getPasswordHash(masterPassword);
+    }
+
+    public boolean isMasterPasswordHashValid(String hashed) {
+        var masterPassword = Optional.ofNullable(properties)
+                .map(Properties::getTenant)
+                .map(Properties.TenantProperties::getMasterPassword)
+                .orElse(properties.getDatabase().getDefaultMasterPassword());
+        return BCrypt.checkpw(masterPassword, hashed);
     }
 }
