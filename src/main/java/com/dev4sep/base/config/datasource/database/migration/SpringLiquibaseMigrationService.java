@@ -44,7 +44,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 public class SpringLiquibaseMigrationService implements InitializingBean {
 
     private static final String TENANT_STORE_DB_CONTEXT = "tenant_store";
-    private static final String TENANT_DB_CONTEXT = "tenant_db";
+    private static final String DEFAULT_DB_CONTEXT = "default_store";
     private static final String INITIAL_SWITCH_CONTEXT = "initial_switch";
 
     private final DataSource dataSource;
@@ -97,7 +97,7 @@ public class SpringLiquibaseMigrationService implements InitializingBean {
     }
 
     private void upgradeTenantStore() throws LiquibaseException {
-        log.info("Upgrading tenant store DB at {}:{}", properties.getTenant().getHost(), properties.getTenant().getPort());
+        log.info("Upgrading tenant database at {}:{}", properties.getTenant().getHost(), properties.getTenant().getPort());
         logTenantStoreDetails();
         if (databaseStateVerifier.isFirstLiquibaseMigration(dataSource)) {
             var liquibase = extendedSpringLiquibaseFactory.create(dataSource, TENANT_STORE_DB_CONTEXT, INITIAL_SWITCH_CONTEXT);
@@ -106,20 +106,20 @@ public class SpringLiquibaseMigrationService implements InitializingBean {
         }
         var liquibase = extendedSpringLiquibaseFactory.create(dataSource, TENANT_STORE_DB_CONTEXT);
         liquibase.afterPropertiesSet();
-        log.info("Tenant store upgrade finished");
+        log.info("Tenant database upgrade finished");
     }
 
     private void upgradeIndividualTenant(PlatformTenant tenant) throws LiquibaseException {
-        log.info("Upgrade for tenant {} has started", tenant.getTenantIdentifier());
+        log.info("Upgrade for default database {} has started", tenant.getTenantIdentifier());
         var tenantDataSource = tenantDataSourceFactory.create(tenant);
         if (databaseStateVerifier.isFirstLiquibaseMigration(tenantDataSource)) {
-            var liquibase = extendedSpringLiquibaseFactory.create(tenantDataSource, TENANT_DB_CONTEXT, INITIAL_SWITCH_CONTEXT, tenant.getTenantIdentifier());
+            var liquibase = extendedSpringLiquibaseFactory.create(tenantDataSource, DEFAULT_DB_CONTEXT, INITIAL_SWITCH_CONTEXT, tenant.getTenantIdentifier());
             applyInitialLiquibase(tenantDataSource, liquibase, tenant.getTenantIdentifier(),
                     (ds) -> !databaseStateVerifier.isTenantOnLatestUpgradableVersion(ds));
         }
-        var tenantLiquibase = extendedSpringLiquibaseFactory.create(tenantDataSource, TENANT_DB_CONTEXT, tenant.getTenantIdentifier());
+        var tenantLiquibase = extendedSpringLiquibaseFactory.create(tenantDataSource, DEFAULT_DB_CONTEXT, tenant.getTenantIdentifier());
         tenantLiquibase.afterPropertiesSet();
-        log.info("Upgrade for tenant {} has finished", tenant.getTenantIdentifier());
+        log.info("Upgrade for default database {} has finished", tenant.getTenantIdentifier());
     }
 
     private void upgradeIndividualTenants() throws LiquibaseException {

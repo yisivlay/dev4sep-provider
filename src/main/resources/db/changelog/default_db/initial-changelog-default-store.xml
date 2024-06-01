@@ -19,13 +19,5 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
-    <property name="current_date" value="CURDATE()" context="mysql"/>
-    <property name="current_datetime" value="NOW()"/>
-    <property name="uuid" value="uuid()" context="mysql"/>
-    <include file="tenant_db/initial-changelog-tenant-store.xml" relativeToChangelogFile="true"
-             context="tenant_store AND initial_switch"/>
-    <include file="tenant_db/changelog-tenant-store.xml" relativeToChangelogFile="true"
-             context="tenant_store AND !initial_switch"/>
-    <include file="default_db/initial-changelog-default-store.xml" relativeToChangelogFile="true"
-             context="default_store AND !initial_switch"/>
+    <include file="versions/0001_create_table_office.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
