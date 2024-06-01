@@ -53,6 +53,39 @@ bootJar {
 	archiveClassifier = ''
 }
 
+// Configuration for database tasks
+import groovy.sql.Sql
+
+project.ext.mariaDBUser = 'root'
+project.ext.mariaDBPassword = 'admin@2024!'
+
+configurations {
+	driver
+}
+dependencies {
+	driver 'org.mariadb.jdbc:mariadb-java-client'
+}
+
+URLClassLoader loader = GroovyObject.class.classLoader as URLClassLoader
+configurations.driver.each { File file -> loader.addURL(file.toURI().toURL()) }
+
+tasks.register('createDB') {
+	description = "Creates the MariaDB Database. Needs database name to be passed (like: -PdbName=someDBname)"
+	doLast {
+		def sql = Sql.newInstance('jdbc:mariadb://localhost:3305/', mariaDBUser, mariaDBPassword, 'org.mariadb.jdbc.Driver')
+		sql.execute('CREATE DATABASE ' + "`$dbName` CHARACTER SET utf8mb4")
+	}
+}
+
+tasks.register('dropDB') {
+	description = "Drops the specified MariaDB database. The database name has to be passed (like: -PdbName=someDBname)"
+	doLast {
+		def sql = Sql.newInstance('jdbc:mariadb://localhost:3305/', mariaDBUser, mariaDBPassword, 'org.mariadb.jdbc.Driver')
+		sql.execute('DROP DATABASE ' + "`$dbName`")
+	}
+}
+// End configuration for Database tasks
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
