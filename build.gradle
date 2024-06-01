@@ -1,3 +1,19 @@
+/**
+ * Copyright 2024 DEV4Sep
+ * <p>
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.6'
@@ -16,34 +32,16 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-authorization-server'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.batch:spring-batch-integration'
-	implementation 'org.glassfish.jersey.media:jersey-media-multipart'
-	implementation('org.springframework.boot:spring-boot-starter-jersey') {
-		exclude group: 'org.glassfish.hk2.external', module: 'aopalliance-repackaged'
-		exclude group: 'org.glassfish.hk2', module: 'hk2-runlevel'
-		exclude group: 'org.hibernate.validator', module: 'hibernate-validator'
-		exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+configurations {
+	providedRuntime
+	providedCompile
+	compile() {
+		exclude module: 'hibernate-entitymanager'
+		exclude module: 'hibernate-validator'
 	}
-	implementation 'org.apache.commons:commons-lang3'
-	implementation 'org.jetbrains:annotations:23.0.0'
-	implementation 'org.eclipse.persistence:eclipselink:4.0.3'
-	implementation 'org.mariadb.jdbc:mariadb-java-client:3.4.0'
-	implementation 'org.liquibase:liquibase-core:4.28.0'
-	implementation 'com.google.guava:guava:10.0.1'
-	implementation 'com.github.spotbugs:spotbugs-annotations'
-
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+apply from: 'dependencies.gradle'
 
 bootJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
