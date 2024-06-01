@@ -53,6 +53,20 @@ bootJar {
 	archiveClassifier = ''
 }
 
+bootRun {
+	jvmArgs = [
+			"-Dspring.output.ansi.enabled=ALWAYS"
+	]
+
+	dependencies {
+		implementation 'org.mariadb.jdbc:mariadb-java-client'
+	}
+}
+
+springBoot {
+	mainClass = 'com.dev4sep.base.ServerApplication'
+}
+
 // Configuration for database tasks
 import groovy.sql.Sql
 
@@ -82,6 +96,14 @@ tasks.register('dropDB') {
 	doLast {
 		def sql = Sql.newInstance('jdbc:mariadb://localhost:3305/', mariaDBUser, mariaDBPassword, 'org.mariadb.jdbc.Driver')
 		sql.execute('DROP DATABASE ' + "`$dbName`")
+	}
+}
+
+tasks.register('setBlankPassword') {
+	doLast {
+		def sql = Sql.newInstance('jdbc:mariadb://localhost:3305/', mariaDBUser, mariaDBPassword, 'org.mariadb.jdbc.Driver')
+		sql.execute('USE `dev4sep-tenants`')
+		sql.execute('UPDATE dev4sep-tenants.tenants SET schema_server = \'localhost\', schema_server_port = \'3305\', schema_username = \'root\', schema_password = \'admin@2024!\' WHERE id=1;')
 	}
 }
 // End configuration for Database tasks
