@@ -14,18 +14,31 @@
  * limitations under the License.
  */
 
-plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.6'
-	id 'io.spring.dependency-management' version '1.1.5'
-	id 'org.graalvm.buildtools.native' version '0.9.28'
+buildscript {
+	ext {
+		springBootVersion = '3.2.6'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath(
+				"org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+		)
+	}
 }
 
+apply plugin: 'org.springframework.boot'
+apply plugin: 'java'
+apply plugin: 'war'
+apply plugin: 'idea'
+apply plugin: 'io.spring.dependency-management'
+
 group = 'com.dev4sep'
-version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
+	targetCompatibility = '17'
 }
 
 repositories {
@@ -35,10 +48,8 @@ repositories {
 configurations {
 	providedRuntime
 	providedCompile
-	compile() {
-		exclude module: 'hibernate-entitymanager'
-		exclude module: 'hibernate-validator'
-	}
+	compile
+	runtime
 }
 
 apply from: 'dependencies.gradle'
@@ -46,8 +57,28 @@ apply from: 'dependencies.gradle'
 bootJar {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 	manifest {
-		attributes('Main-Class': 'org.springframework.boot.loader.launch.PropertiesLauncher', 'Implementation-Title': 'Apache Fineract', 'Implementation-Version': project.version)
+		attributes('Main-Class': 'org.springframework.boot.loader.launch.PropertiesLauncher', 'Implementation-Title': 'DEV4Sep', 'Implementation-Version': project.version)
 	}
+	enabled = true
+	archiveFileName = 'dev4sep-provider.jar'
+	archiveClassifier = ''
+}
+
+// bootWar build will execute with bootWar task
+bootWar {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	manifest {
+		attributes('Main-Class': 'org.springframework.boot.loader.launch.PropertiesLauncher', 'Implementation-Title': 'DEV4Sep', 'Implementation-Version': project.version)
+	}
+	enabled = true
+	archiveFileName = 'dev4sep-provider.war'
+	archiveClassifier = ''
+}
+
+// assemble build will execute with war task
+war {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+	archiveFileName = 'dev4sep-provider.war'
 	archiveClassifier = ''
 }
 
