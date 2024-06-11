@@ -20,10 +20,13 @@ buildscript {
 	}
 	repositories {
 		mavenCentral()
+		maven { url "https://plugins.gradle.org/m2/" }
 	}
 	dependencies {
 		classpath(
-				"org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+				"org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}",
+				"gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1",
+				"com.github.jk1:gradle-license-report:2.8"
 		)
 	}
 }
@@ -32,6 +35,8 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'idea'
+apply plugin: 'license'
+apply plugin: 'com.github.jk1.dependency-license-report'
 apply plugin: 'io.spring.dependency-management'
 
 group = 'com.dev4sep'
@@ -97,6 +102,7 @@ springBoot {
 }
 
 // Configuration for database tasks
+
 import groovy.sql.Sql
 
 project.ext.mariaDBUser = 'root'
@@ -136,6 +142,52 @@ tasks.register('setBlankPassword') {
 	}
 }
 // End configuration for Database tasks
+
+tasks.register('ServerApplication') {
+	def mainClass = 'com.dev4sep.base.ServerApplication'
+	rootProject.file(mainClass)
+}
+
+// Manage License
+license {
+	header rootProject.file("LICENSE_HEADER")
+	excludes([
+			"**/gradlew*",
+			"**/*.html",
+			"**/*.mustache",
+			"**/package-info.java",
+			"**/keystore.p12",
+			"**/keystore.jks",
+			"**/*Tests.java",
+			"**/banner.txt"
+	])
+	licenseReport {
+		outputDir = "$projectDir/licenses"
+	}
+	strictCheck true
+}
+
+downloadLicenses {
+	ext.apacheTwo = license('Apache License, Version 2.0', 'http://opensource.org/licenses/Apache-2.0')
+
+	includeProjectDependencies = true
+	licenses = [
+			(group('com.dev4sep.base'))         : license('DEV4Sep License'),
+			'org.apache.james:apache-mime4j:0.6': apacheTwo
+	]
+
+	aliases = [
+			(apacheTwo): [
+					'The Apache Software License, Version 2.0', 'Apache 2', 'Apache License Version 2.0', 'Apache License, Version 2.0', 'Apache License 2.0', license('Apache License', 'http://www.apache.org/licenses/LICENSE-2.0')]
+	]
+
+	dependencyConfiguration = 'compile'
+}
+
+licenseFormatMain.header = file('LICENSE_HEADER')
+licenseMain.dependsOn ServerApplication
+
+// End Manage License
 
 tasks.named('test') {
 	useJUnitPlatform()

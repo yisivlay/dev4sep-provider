@@ -16,3 +16,15 @@ Run the following commands:
 1. `./gradlew createDB -PdbName=dev4sep-tenants`
 2. `./gradlew createDB -PdbName=dev4sep-default`
 3. `./gradlew bootRun`
+
+<br> Manage Apache2 Licenses 
+============================
+Run the following commands:
+* Added Apache License to Header of Class
+1. `./gradlew licenseFormat`
+* Check Apache License
+2. `./gradlew license`
+* Download Apache License
+3. `./gradlew license`
+* Generate License Report
+4. `./gradlew generateLicenseReport`
