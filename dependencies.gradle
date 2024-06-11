@@ -37,13 +37,20 @@ dependencies {
             'org.mariadb.jdbc:mariadb-java-client:3.4.0',
             'org.liquibase:liquibase-core:4.28.0',
             'com.google.guava:guava:10.0.1',
-            'com.github.spotbugs:spotbugs-annotations'
+            'com.github.spotbugs:spotbugs-annotations',
+            'com.google.code.gson:gson',
+            'org.apache.httpcomponents:httpcore',
     )
     implementation('org.springframework.boot:spring-boot-starter-jersey') {
         exclude group: 'org.glassfish.hk2.external', module: 'aopalliance-repackaged'
         exclude group: 'org.glassfish.hk2', module: 'hk2-runlevel'
         exclude group: 'org.hibernate.validator', module: 'hibernate-validator'
         exclude group: 'jakarta.activation', module: 'jakarta.activation-api'
+    }
+    implementation ('org.mnode.ical4j:ical4j:3.2.18') {
+        exclude group: 'commons-logging'
+        exclude group: 'javax.activation'
+        exclude group: 'com.sun.mail', module: 'javax.mail'
     }
 
     compileOnly 'org.projectlombok:lombok'
