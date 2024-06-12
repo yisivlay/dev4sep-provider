@@ -45,7 +45,7 @@ public final class GoogleGsonSerializerHelper {
     }
 
     public static GsonBuilder createGsonBuilder(final boolean prettyPrint) {
-        final GsonBuilder builder = new GsonBuilder();
+        final var builder = new GsonBuilder();
         registerTypeAdapters(builder);
         if (prettyPrint) {
             builder.setPrettyPrinting();
@@ -68,7 +68,7 @@ public final class GoogleGsonSerializerHelper {
     public Gson createGsonBuilderForPartialResponseFiltering(final boolean prettyPrint, final Set<String> responseParameters) {
         final ExclusionStrategy strategy = new ParameterListInclusionStrategy(responseParameters);
 
-        final GsonBuilder builder = new GsonBuilder().addSerializationExclusionStrategy(strategy);
+        final var builder = new GsonBuilder().addSerializationExclusionStrategy(strategy);
         registerTypeAdapters(builder);
         if (prettyPrint) {
             builder.setPrettyPrinting();
@@ -95,9 +95,9 @@ public final class GoogleGsonSerializerHelper {
             parameterNamesToSkip.removeAll(responseParameters);
         }
 
-        final ExclusionStrategy strategy = new ParameterListExclusionStrategy(parameterNamesToSkip);
+        final var strategy = new ParameterListExclusionStrategy(parameterNamesToSkip);
 
-        final GsonBuilder builder = new GsonBuilder().addSerializationExclusionStrategy(strategy);
+        final var builder = new GsonBuilder().addSerializationExclusionStrategy(strategy);
         registerTypeAdapters(builder);
         if (prettyPrint) {
             builder.setPrettyPrinting();

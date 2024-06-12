@@ -42,10 +42,10 @@ public class BasicAuthTenantDetailsServiceJdbc implements BasicAuthTenantDetails
     @Override
     public PlatformTenant loadTenantById(String tenantIdentifier, boolean isReport) {
         try {
-            final TenantMapper rm = new TenantMapper(isReport);
-            final String sql = "select  " + rm.schema() + " where t.identifier = ?";
+            final var rm = new TenantMapper(isReport);
+            final var sql = "select  " + rm.schema() + " where t.identifier = ?";
 
-            return this.jdbcTemplate.queryForObject(sql, rm, new Object[] { tenantIdentifier });
+            return this.jdbcTemplate.queryForObject(sql, rm, tenantIdentifier);
         } catch (final EmptyResultDataAccessException e) {
             throw new InvalidTenantIdentifierException("The tenant identifier: " + tenantIdentifier + " is not valid.", e);
         }

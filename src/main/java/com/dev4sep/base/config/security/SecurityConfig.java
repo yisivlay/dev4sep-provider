@@ -15,8 +15,10 @@
  */
 package com.dev4sep.base.config.security;
 
+import com.dev4sep.base.config.security.data.PlatformRequestLog;
 import com.dev4sep.base.config.security.filters.TenantAwareBasicAuthenticationFilter;
 import com.dev4sep.base.config.security.service.BasicAuthTenantDetailsService;
+import com.dev4sep.base.config.serialization.ToApiJsonSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -52,8 +54,15 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final BasicAuthTenantDetailsService basicAuthTenantDetailsService;
+    private final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
+
     @Autowired
-    private BasicAuthTenantDetailsService basicAuthTenantDetailsService;
+    public SecurityConfig(final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
+                          final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer) {
+        this.basicAuthTenantDetailsService = basicAuthTenantDetailsService;
+        this.toApiJsonSerializer = toApiJsonSerializer;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -119,6 +128,11 @@ public class SecurityConfig {
     }
 
     public TenantAwareBasicAuthenticationFilter tenantAwareBasicAuthenticationFilter() throws Exception {
-        return new TenantAwareBasicAuthenticationFilter(authenticationManagerBean(), basicAuthenticationEntryPoint(), basicAuthTenantDetailsService);
+        return new TenantAwareBasicAuthenticationFilter(
+                authenticationManagerBean(),
+                basicAuthenticationEntryPoint(),
+                basicAuthTenantDetailsService,
+                toApiJsonSerializer
+        );
     }
 }

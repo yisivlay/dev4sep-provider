@@ -25,9 +25,15 @@ public final class ThreadLocalContextUtil {
     public static final String CONTEXT_TENANTS = "tenants";
     private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
     private static final ThreadLocal<PlatformTenant> tenantContext = new ThreadLocal<>();
+    private static final ThreadLocal<String> authTokenContext = new ThreadLocal<>();
 
     public static String getDataSourceContext() {
         return contextHolder.get();
+    }
+
+    public static void reset() {
+        contextHolder.remove();
+        tenantContext.remove();
     }
 
     public static PlatformTenant getTenant() {
@@ -36,5 +42,9 @@ public final class ThreadLocalContextUtil {
 
     public static void setTenant(final PlatformTenant tenant) {
         tenantContext.set(tenant);
+    }
+
+    public static void setAuthToken(final String authToken) {
+        authTokenContext.set(authToken);
     }
 }
