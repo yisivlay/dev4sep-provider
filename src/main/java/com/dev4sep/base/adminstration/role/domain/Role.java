@@ -15,13 +15,13 @@
  */
 package com.dev4sep.base.adminstration.role.domain;
 
+import com.dev4sep.base.adminstration.permission.domain.Permission;
 import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author YISivlay
@@ -38,6 +38,10 @@ public class Role extends AbstractPersistableCustom implements Serializable {
 
     @Column(name = "is_disabled", nullable = false)
     private Boolean disabled;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "tbl_role_permission", joinColumns = @JoinColumn(name = "role_id"), inverseJoinColumns = @JoinColumn(name = "permission_id"))
+    private Set<Permission> permissions = new HashSet<>();
 
     protected Role() {
     }
