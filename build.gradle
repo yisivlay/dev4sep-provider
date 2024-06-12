@@ -53,7 +53,10 @@ repositories {
 configurations {
 	providedRuntime
 	providedCompile
-	compile
+	compile() {
+		exclude module: 'hibernate-entitymanager'
+		exclude module: 'hibernate-validator'
+	}
 	runtime
 }
 
