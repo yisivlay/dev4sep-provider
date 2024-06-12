@@ -22,4 +22,5 @@
     <include file="versions/0001_create_table_office.xml" relativeToChangelogFile="true"/>
     <include file="versions/0002_update_table_office.xml" relativeToChangelogFile="true"/>
     <include file="versions/0003_create_table_role.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0004_create_table_permission.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
