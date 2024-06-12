@@ -54,6 +54,13 @@ public class ApiGlobalErrorResponse {
         return response;
     }
 
+    public static ApiGlobalErrorResponse create(int statusCode,
+                                                String msgCode,
+                                                String developerMsg,
+                                                String userMsg) {
+        return create(statusCode, msgCode, developerMsg, userMsg, null);
+    }
+
     public static ApiGlobalErrorResponse badClientRequest(final String msgCode,
                                                           final String userMsg,
                                                           final List<ApiParameterError> errors) {
@@ -88,5 +95,10 @@ public class ApiGlobalErrorResponse {
         errors.add(ApiParameterError.parameterError(msgCode, userMsg, parameterName, userMsgArgs));
 
         return create(SC_FORBIDDEN, msgCode, "The request caused a data integrity issue to be fired by the database.", userMsg, errors);
+    }
+
+    public static ApiGlobalErrorResponse invalidTenantIdentifier() {
+        return create(SC_UNAUTHORIZED, "error.msg.invalid.tenant.identifier", "Invalid tenant details were passed in api request.",
+                "Invalid tenant identifier provided with request.");
     }
 }

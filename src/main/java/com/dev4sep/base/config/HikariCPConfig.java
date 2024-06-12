@@ -16,7 +16,6 @@
 package com.dev4sep.base.config;
 
 import com.zaxxer.hikari.HikariDataSource;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,10 +24,9 @@ import org.springframework.context.annotation.Configuration;
  * @author YISivlay
  */
 @Configuration
-@ConditionalOnExpression
 public class HikariCPConfig {
 
-    @Bean
+    @Bean(initMethod = "getConnection", destroyMethod = "close")
     @ConfigurationProperties(prefix = "spring.datasource.hikari")
     public HikariDataSource hikariDataSource() {
         return new HikariDataSource();

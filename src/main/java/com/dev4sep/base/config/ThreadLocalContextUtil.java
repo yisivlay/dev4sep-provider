@@ -33,4 +33,8 @@ public final class ThreadLocalContextUtil {
     public static PlatformTenant getTenant() {
         return tenantContext.get();
     }
+
+    public static void setTenant(final PlatformTenant tenant) {
+        tenantContext.set(tenant);
+    }
 }
