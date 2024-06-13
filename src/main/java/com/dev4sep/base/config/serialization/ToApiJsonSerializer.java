@@ -15,9 +15,18 @@
  */
 package com.dev4sep.base.config.serialization;
 
+import java.util.Collection;
+import java.util.Set;
+
 /**
  * @author YISivlay
  */
 public interface ToApiJsonSerializer<T> {
+
     String serialize(Object object);
+
+    String serialize(ApiRequestJsonSerializationSettings settings, T single, Set<String> supportedResponseParameters);
+
+    String serialize(ApiRequestJsonSerializationSettings settings, Collection<T> collection, Set<String> supportedResponseParameters);
+
 }

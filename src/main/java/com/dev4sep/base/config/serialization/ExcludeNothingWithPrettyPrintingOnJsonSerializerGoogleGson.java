@@ -13,27 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.role.data;
+package com.dev4sep.base.config.serialization;
 
-import lombok.Getter;
-
-import java.io.Serializable;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.springframework.stereotype.Component;
 
 /**
  * @author YISivlay
  */
-@Getter
-public class RoleData implements Serializable {
+@Component
+public class ExcludeNothingWithPrettyPrintingOnJsonSerializerGoogleGson {
 
-    private final Long id;
-    private final String name;
-    private final String description;
-    private final Boolean disabled;
+    private final Gson gson;
 
-    public RoleData(final Long id, final String name, final String description, final Boolean disabled) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.disabled = disabled;
+    public ExcludeNothingWithPrettyPrintingOnJsonSerializerGoogleGson() {
+        final GsonBuilder builder = new GsonBuilder();
+        GoogleGsonSerializerHelper.registerTypeAdapters(builder);
+        builder.setPrettyPrinting();
+
+        this.gson = builder.create();
     }
+
+    public String serialize(final Object result) {
+        return this.gson.toJson(result);
+    }
+
 }

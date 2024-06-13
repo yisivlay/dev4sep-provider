@@ -15,8 +15,12 @@
  */
 package com.dev4sep.base.config.serialization;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author YISivlay
@@ -24,15 +28,75 @@ import org.springframework.stereotype.Component;
 @Component
 public class DefaultToApiJsonSerializer<T> implements ToApiJsonSerializer<T> {
 
+    private final GoogleGsonSerializerHelper helper;
     private final ExcludeNothingWithPrettyPrintingOffJsonSerializerGoogleGson excludeNothingWithPrettyPrintingOff;
+    private final ExcludeNothingWithPrettyPrintingOnJsonSerializerGoogleGson excludeNothingWithPrettyPrintingOn;
 
     @Autowired
-    public DefaultToApiJsonSerializer(ExcludeNothingWithPrettyPrintingOffJsonSerializerGoogleGson excludeNothingWithPrettyPrintingOff) {
+    public DefaultToApiJsonSerializer(final GoogleGsonSerializerHelper helper,
+                                      final ExcludeNothingWithPrettyPrintingOffJsonSerializerGoogleGson excludeNothingWithPrettyPrintingOff,
+                                      final ExcludeNothingWithPrettyPrintingOnJsonSerializerGoogleGson excludeNothingWithPrettyPrintingOn) {
+        this.helper = helper;
         this.excludeNothingWithPrettyPrintingOff = excludeNothingWithPrettyPrintingOff;
+        this.excludeNothingWithPrettyPrintingOn = excludeNothingWithPrettyPrintingOn;
+    }
+
+    private Gson findAppropriateSerializer(final ApiRequestJsonSerializationSettings settings,
+                                           final Set<String> supportedResponseParameters) {
+        Gson gson = null;
+        if (settings.isPartialResponseRequired()) {
+            gson = this.helper.createGsonBuilderWithParameterExclusionSerializationStrategy(supportedResponseParameters,
+                    settings.isPrettyPrint(), settings.getParametersForPartialResponse());
+        }
+        return gson;
+    }
+
+    private String serializeWithSettings(final Gson gson, final ApiRequestJsonSerializationSettings settings, final Object[] dataObject) {
+        String json = null;
+        if (gson != null) {
+            json = this.helper.serializedJsonFrom(gson, dataObject);
+        } else {
+            if (settings.isPrettyPrint()) {
+                json = this.excludeNothingWithPrettyPrintingOn.serialize(dataObject);
+            } else {
+                json = serialize(dataObject);
+            }
+        }
+        return json;
+    }
+
+    private String serializeWithSettings(final Gson gson, final ApiRequestJsonSerializationSettings settings, final Object dataObject) {
+        String json = null;
+        if (gson != null) {
+            json = this.helper.serializedJsonFrom(gson, dataObject);
+        } else {
+            if (settings.isPrettyPrint()) {
+                json = this.excludeNothingWithPrettyPrintingOn.serialize(dataObject);
+            } else {
+                json = serialize(dataObject);
+            }
+        }
+        return json;
+    }
+
+    @Override
+    public String serialize(final ApiRequestJsonSerializationSettings settings,
+                            final T object,
+                            final Set<String> supportedResponseParameters) {
+        final var delegatedSerializer = findAppropriateSerializer(settings, supportedResponseParameters);
+        return serializeWithSettings(delegatedSerializer, settings, object);
     }
 
     @Override
     public String serialize(Object object) {
         return this.excludeNothingWithPrettyPrintingOff.serialize(object);
+    }
+
+    @Override
+    public String serialize(final ApiRequestJsonSerializationSettings settings,
+                            final Collection<T> collection,
+                            final Set<String> supportedResponseParameters) {
+        final var delegatedSerializer = findAppropriateSerializer(settings, supportedResponseParameters);
+        return serializeWithSettings(delegatedSerializer, settings, collection.toArray());
     }
 }

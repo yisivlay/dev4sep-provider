@@ -105,7 +105,7 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
             ThreadLocalContextUtil.reset();
             task.stop();
             final var msg = PlatformRequestLog.from(task, request);
-            log.debug("{}", toApiJsonSerializer.serialize(msg));
+            log.info("{}", toApiJsonSerializer.serialize(msg));
         }
 
     }
