@@ -31,6 +31,7 @@ public class Properties {
     private TenantProperties tenant;
     private ModeProperties mode;
     private DatabaseProperties database;
+    private SecurityProperties security;
 
     @Getter
     @Setter
@@ -95,5 +96,18 @@ public class Properties {
     @Setter
     public static class DatabaseProperties {
         private String defaultMasterPassword;
+    }
+
+    @Getter
+    @Setter
+    public static class SecurityProperties {
+        private SecurityBasicAuth basicauth;
+    }
+
+    @Getter
+    @Setter
+    public static class SecurityBasicAuth {
+
+        private boolean enabled;
     }
 }

@@ -72,19 +72,19 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
                 chain.doFilter(request, response);
             } else {
                 if (requestMatcher.matches(request)) {
-                    String tenantIdentifier = request.getHeader("DEV4Sep-Platform-TenantId");
+                    var tenantIdentifier = request.getHeader("DEV4Sep-Platform-TenantId");
                     if (StringUtils.isBlank(tenantIdentifier)) {
                         tenantIdentifier = request.getParameter("tenantIdentifier");
                     }
                     if (tenantIdentifier == null) {
                         throw new InvalidTenantIdentifierException("No tenant identifier found: Add request header of 'DEV4Sep-Platform-TenantId' or add the parameter 'tenantIdentifier' to query string of request URL.");
                     }
-                    String pathInfo = request.getRequestURI();
-                    boolean isReportRequest = pathInfo != null && pathInfo.contains("report");
+                    var pathInfo = request.getRequestURI();
+                    var isReportRequest = pathInfo != null && pathInfo.contains("report");
 
                     final var tenant = basicAuthTenantDetailsService.loadTenantById(tenantIdentifier, isReportRequest);
                     ThreadLocalContextUtil.setTenant(tenant);
-                    String authToken = request.getHeader("Authorization");
+                    var authToken = request.getHeader("Authorization");
                     if (authToken != null && authToken.startsWith("Basic ")) {
                         ThreadLocalContextUtil.setAuthToken(authToken.replaceFirst("Basic ", ""));
                     }

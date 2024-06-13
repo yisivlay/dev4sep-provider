@@ -15,11 +15,21 @@
  */
 package com.dev4sep.base.adminstration.user.domain;
 
-import com.dev4sep.base.config.auditing.domain.AbstractAuditableCustom;
+import com.dev4sep.base.adminstration.role.domain.Role;
+import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
+import com.dev4sep.base.config.security.domain.PlatformUser;
+import com.dev4sep.base.config.security.exception.NoAuthorizationException;
 import com.dev4sep.base.organisation.office.domain.Office;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author YISivlay
@@ -29,7 +39,11 @@ import java.time.LocalDate;
         @UniqueConstraint(columnNames = {"username"}, name = "username"),
         @UniqueConstraint(columnNames = {"email"}, name = "email")
 })
-public class User extends AbstractAuditableCustom {
+public class User extends AbstractPersistableCustom implements PlatformUser {
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "tbl_user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private final Set<Role> roles;
 
     @ManyToOne
     @JoinColumn(name = "office_id", nullable = false)
@@ -63,7 +77,7 @@ public class User extends AbstractAuditableCustom {
     private boolean isCredentialsNonExpired;
 
     @Column(name = "is_enabled", nullable = false)
-    private boolean isEnabled;
+    private boolean enabled;
 
     @Column(name = "last_time_password_updated")
     private LocalDate lastTimePasswordUpdated;
@@ -78,8 +92,103 @@ public class User extends AbstractAuditableCustom {
     private Boolean isCannotChangePassword;
 
     @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted;
+    private boolean deleted;
 
     protected User() {
+        this.isAccountNonLocked = false;
+        this.isCredentialsNonExpired = false;
+        this.roles = new HashSet<>();
+    }
+
+    private boolean hasAllFunctionsPermission() {
+        return this.roles.stream().anyMatch(role -> role.hasPermissionTo("ALL_FUNCTIONS"));
+    }
+
+    private boolean hasPermissionTo(final String permissionCode) {
+        boolean hasPermission = hasAllFunctionsPermission();
+        if (!hasPermission) {
+            if (this.roles.stream().anyMatch(role -> role.hasPermissionTo(permissionCode))) {
+                hasPermission = true;
+            }
+        }
+        return hasPermission;
+    }
+
+    public boolean hasNotPermissionForAnyOf(final String... permissionCodes) {
+        boolean hasNotPermission = true;
+        for (final String permissionCode : permissionCodes) {
+            final boolean checkPermission = hasPermissionTo(permissionCode);
+            if (checkPermission) {
+                hasNotPermission = false;
+                break;
+            }
+        }
+        return hasNotPermission;
+    }
+
+    private void validateHasPermission(final String prefix, final String resourceType) {
+        final String authorizationMessage = "User has no authority to " + prefix + " " + resourceType.toLowerCase() + "s";
+        final String matchPermission = prefix + "_" + resourceType.toUpperCase();
+
+        if (!hasNotPermissionForAnyOf("ALL_FUNCTIONS", "ALL_FUNCTIONS_READ", matchPermission)) {
+            return;
+        }
+
+        throw new NoAuthorizationException(authorizationMessage);
+    }
+
+    public void validateHasReadPermission(final String resourceType) {
+        validateHasPermission("READ", resourceType);
+    }
+
+    public Set<Role> getRoles() {
+        return this.roles;
+    }
+
+    private List<GrantedAuthority> populateGrantedAuthorities() {
+        return this.roles.stream()
+                .map(Role::getPermissions)
+                .flatMap(Collection::stream)
+                .map(permission -> new SimpleGrantedAuthority(permission.getCode()))
+                .collect(Collectors.toList());
+    }
+
+    public Office getOffice() {
+        return office;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return populateGrantedAuthorities();
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.isAccountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.isAccountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.isCredentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
     }
 }

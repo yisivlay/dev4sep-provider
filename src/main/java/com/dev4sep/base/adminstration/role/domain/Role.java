@@ -16,10 +16,12 @@
 package com.dev4sep.base.adminstration.role.domain;
 
 import com.dev4sep.base.adminstration.permission.domain.Permission;
+import com.dev4sep.base.adminstration.role.data.RoleData;
 import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,5 +46,17 @@ public class Role extends AbstractPersistableCustom implements Serializable {
     private Set<Permission> permissions = new HashSet<>();
 
     protected Role() {
+    }
+
+    public Collection<Permission> getPermissions() {
+        return this.permissions;
+    }
+
+    public RoleData toData() {
+        return new RoleData(getId(), this.name, this.description, this.disabled);
+    }
+
+    public boolean hasPermissionTo(final String permissionCode) {
+        return this.permissions.stream().anyMatch(permission -> permission.hasCode(permissionCode));
     }
 }

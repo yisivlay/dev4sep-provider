@@ -15,7 +15,7 @@
  */
 package com.dev4sep.base.adminstration.permission.domain;
 
-import com.dev4sep.base.config.auditing.domain.AbstractAuditableCustom;
+import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -28,7 +28,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "tbl_permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"code"}, name = "code")})
-public class Permission extends AbstractAuditableCustom implements Serializable {
+public class Permission extends AbstractPersistableCustom implements Serializable {
 
     @Column(name = "grouping", nullable = false, length = 45)
     private String grouping;
@@ -46,5 +46,13 @@ public class Permission extends AbstractAuditableCustom implements Serializable 
     private boolean canMakerChecker;
 
     protected Permission() {
+    }
+
+    public String getCode() {
+        return this.code;
+    }
+
+    public boolean hasCode(final String checkCode) {
+        return this.code.equalsIgnoreCase(checkCode);
     }
 }

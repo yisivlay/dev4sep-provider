@@ -15,6 +15,8 @@
  */
 package com.dev4sep.base.config.boot;
 
+import com.dev4sep.base.config.HikariCPConfig;
+import com.dev4sep.base.config.JdbcConfig;
 import com.dev4sep.base.config.Properties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -25,6 +27,7 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -46,7 +49,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
         GsonAutoConfiguration.class,
         JdbcTemplateAutoConfiguration.class,
         LiquibaseAutoConfiguration.class})
-@Import({Properties.class, LiquibaseProperties.class})
+@EnableConfigurationProperties({Properties.class, LiquibaseProperties.class})
+@Import({HikariCPConfig.class, JdbcConfig.class})
 @ComponentScan(basePackages = "com.dev4sep.base.**")
 @IntegrationComponentScan(basePackages = "com.dev4sep.base.**")
 public abstract class WebApplicationConfiguration {
