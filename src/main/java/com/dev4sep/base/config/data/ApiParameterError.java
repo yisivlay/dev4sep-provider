@@ -30,7 +30,7 @@ public final class ApiParameterError {
     private final String userMsgCode;
     private final Object value;
     private final List<ApiErrorMessageArg> args;
-    private final String parameterName;
+    private String parameterName;
 
     public ApiParameterError(final String msgCode,
                              final String userMsg,
@@ -75,5 +75,46 @@ public final class ApiParameterError {
                                                                final String userMsg,
                                                                final Object... userMsgArgs) {
         return new ApiParameterError(msgCode, userMsg, userMsgArgs, "id", null);
+    }
+
+    public static ApiParameterError parameterErrorWithValue(final String msgCode,
+                                                            final String userMsg,
+                                                            final String parameterName,
+                                                            final String value,
+                                                            final Object... userMsgArgs) {
+        return new ApiParameterError(msgCode, userMsg, userMsgArgs, parameterName, value);
+    }
+
+    public String getDeveloperMsg() {
+        return this.developerMsg;
+    }
+
+    public String getUserMsg() {
+        return this.userMsg;
+    }
+
+    public String getUserMsgCode() {
+        return this.userMsgCode;
+    }
+
+    public String getParameterName() {
+        return this.parameterName;
+    }
+
+    public void setParameterName(final String parameterName) {
+        this.parameterName = parameterName;
+    }
+
+    public Object getValue() {
+        return this.value;
+    }
+
+    public List<ApiErrorMessageArg> getArgs() {
+        return this.args;
+    }
+
+    @Override
+    public String toString() {
+        return developerMsg;
     }
 }

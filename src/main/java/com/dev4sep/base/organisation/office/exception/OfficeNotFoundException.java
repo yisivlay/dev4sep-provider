@@ -17,6 +17,7 @@ package com.dev4sep.base.organisation.office.exception;
 
 import com.dev4sep.base.config.domain.ExternalId;
 import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 /**
  * @author YISivlay
@@ -25,6 +26,10 @@ public class OfficeNotFoundException extends AbstractPlatformResourceNotFoundExc
 
     public OfficeNotFoundException(final Long id) {
         super("error.msg.office.id.invalid", "Office with identifier " + id + " does not exist", id);
+    }
+
+    public OfficeNotFoundException(Long id, EmptyResultDataAccessException e) {
+        super("error.msg.office.id.invalid", "Office with identifier " + id + " does not exist", id, e);
     }
 
     public OfficeNotFoundException(ExternalId externalId) {

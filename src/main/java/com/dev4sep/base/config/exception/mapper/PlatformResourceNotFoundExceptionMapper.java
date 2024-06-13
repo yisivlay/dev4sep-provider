@@ -33,11 +33,7 @@ import org.springframework.stereotype.Component;
 @Provider
 @Component
 @Scope("singleton")
-public class PlatformResourceNotFoundExceptionMapper implements CustomExceptionMapper, ExceptionMapper<AbstractPlatformResourceNotFoundException> {
-    @Override
-    public int errorCode() {
-        return 404;
-    }
+public class PlatformResourceNotFoundExceptionMapper implements ExceptionMapper<AbstractPlatformResourceNotFoundException> {
 
     @Override
     public Response toResponse(AbstractPlatformResourceNotFoundException exception) {
