@@ -15,15 +15,17 @@
  */
 package com.dev4sep.base.organisation.office.api;
 
+import com.dev4sep.base.config.api.ApiRequestParameterHelper;
+import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.security.service.PlatformSecurityContext;
+import com.dev4sep.base.config.serialization.ApiRequestJsonSerializationSettings;
+import com.dev4sep.base.config.serialization.DefaultToApiJsonSerializer;
 import com.dev4sep.base.organisation.office.data.OfficeData;
-import com.dev4sep.base.organisation.office.domain.Office;
-import com.dev4sep.base.organisation.office.domain.OfficeRepository;
 import com.dev4sep.base.organisation.office.service.OfficeReadPlatformService;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.UriInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -37,12 +39,39 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OfficesApiResource {
 
+    private final PlatformSecurityContext context;
+    private final ApiRequestParameterHelper apiRequestParameterHelper;
+    private final DefaultToApiJsonSerializer<OfficeData> toApiJsonSerializer;
     private final OfficeReadPlatformService officeReadPlatformService;
 
     @GET
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public List<OfficeData> getAllOffice() {
-        return this.officeReadPlatformService.getAllOffices();
+    public String getAllOffice(@Context final UriInfo uriInfo,
+                               @DefaultValue("false") @QueryParam("includeAllOffices") final boolean includeAllOffices,
+                               @QueryParam("orderBy") final String orderBy, @QueryParam("sortOrder") final String sortOrder,
+                               @QueryParam("offset") final Integer offset, @QueryParam("limit") final Integer limit) {
+        this.context.authenticatedUser().validateHasReadPermission(OfficesApiConstants.PERMISSIONS);
+
+        RequestParameters requestParameters = RequestParameters.builder().orderBy(orderBy).sortOrder(sortOrder).offset(offset).limit(limit).build();
+        List<OfficeData> offices = this.officeReadPlatformService.getAllOffices(includeAllOffices, requestParameters);
+
+        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        return this.toApiJsonSerializer.serialize(settings, offices, OfficesApiConstants.RESPONSE_PARAMETERS);
+    }
+
+    @GET
+    @Path("{id}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getOneOffice(@Context final UriInfo uriInfo,
+                               @PathParam("id") final Long id) {
+
+        this.context.authenticatedUser().validateHasReadPermission(OfficesApiConstants.PERMISSIONS);
+
+        OfficeData office = this.officeReadPlatformService.getOneOffices(id);
+
+        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        return this.toApiJsonSerializer.serialize(settings, office, OfficesApiConstants.RESPONSE_PARAMETERS);
     }
 }

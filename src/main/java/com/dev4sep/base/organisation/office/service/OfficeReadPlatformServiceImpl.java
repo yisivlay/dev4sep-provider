@@ -15,6 +15,9 @@
  */
 package com.dev4sep.base.organisation.office.service;
 
+import com.dev4sep.base.adminstration.user.domain.User;
+import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -29,24 +32,47 @@ import java.util.List;
 @Service
 public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService {
 
+    private final PlatformSecurityContext context;
     private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public OfficeReadPlatformServiceImpl(JdbcTemplate jdbcTemplate) {
+    public OfficeReadPlatformServiceImpl(final PlatformSecurityContext context,
+                                         final JdbcTemplate jdbcTemplate) {
+        this.context = context;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
-    public List<OfficeData> getAllOffices() {
+    public List<OfficeData> getAllOffices(boolean includeAllOffices, RequestParameters requestParameters) {
 
-        String sql = "SELECT * FROM tbl_office ";
+        final User login = this.context.authenticatedUser();
+        final String loginHierarchy = login.getOffice().getHierarchy();
+        final String hierarchySearchString = includeAllOffices ? "." + "%" : loginHierarchy + "%";
+
+        String sql = "SELECT * FROM tbl_office o ";
+        if (requestParameters != null) {
+            if (requestParameters.hasOrderBy()) {
+                sql += " ORDER BY " + requestParameters.getOrderBy();
+                if (requestParameters.hasSortOrder()) {
+                    sql += " ".concat(requestParameters.getSortOrder());
+                }
+                if (requestParameters.hasLimit()) {
+                    sql += " LIMIT " + requestParameters.getLimit();
+                    if (requestParameters.hasOffset()) {
+                        sql += " OFFSET " + requestParameters.getOffset();
+                    }
+                }
+            } else {
+                sql += " ORDER BY o.hierarchy ";
+            }
+        }
 
         return this.jdbcTemplate.query(sql, (rs, rowNum) -> {
 
             final Long id = rs.getLong("id");
             final String hierarchy = rs.getString("hierarchy");
             final String externalId = rs.getString("external_id");
-            final String name = rs.getString("hierarchy");
+            final String name = rs.getString("name");
             final Date openingDate = rs.getDate("opening_date");
 
             return OfficeData.builder()
@@ -56,6 +82,27 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
                     .openingDate(openingDate)
                     .hierarchy(hierarchy)
                     .build();
-        });
+        }, hierarchySearchString);
+    }
+
+    @Override
+    public OfficeData getOneOffices(Long id) {
+        String sql = "SELECT * FROM tbl_office o WHERE o.id = ? ";
+
+        return this.jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+
+            final String hierarchy = rs.getString("hierarchy");
+            final String externalId = rs.getString("external_id");
+            final String name = rs.getString("name");
+            final Date openingDate = rs.getDate("opening_date");
+
+            return OfficeData.builder()
+                    .id(id)
+                    .name(name)
+                    .externalId(externalId)
+                    .openingDate(openingDate)
+                    .hierarchy(hierarchy)
+                    .build();
+        }, id);
     }
 }

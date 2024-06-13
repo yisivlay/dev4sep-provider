@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.organisation.office.service;
 
+import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 
 import java.util.List;
@@ -24,5 +25,7 @@ import java.util.List;
  */
 public interface OfficeReadPlatformService {
 
-    List<OfficeData> getAllOffices();
+    List<OfficeData> getAllOffices(final boolean includeAllOffices, final RequestParameters requestParameters);
+
+    OfficeData getOneOffices(final Long id);
 }
