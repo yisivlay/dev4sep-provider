@@ -15,6 +15,8 @@
  */
 package com.dev4sep.base.config.serialization;
 
+import com.dev4sep.base.config.service.Page;
+
 import java.util.Collection;
 import java.util.Set;
 
@@ -28,5 +30,7 @@ public interface ToApiJsonSerializer<T> {
     String serialize(ApiRequestJsonSerializationSettings settings, T single, Set<String> supportedResponseParameters);
 
     String serialize(ApiRequestJsonSerializationSettings settings, Collection<T> collection, Set<String> supportedResponseParameters);
+
+    String serialize(ApiRequestJsonSerializationSettings settings, Page<T> page, Set<String> supportedResponseParameters);
 
 }

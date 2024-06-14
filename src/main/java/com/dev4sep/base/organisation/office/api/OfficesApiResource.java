@@ -20,6 +20,7 @@ import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.serialization.ApiRequestJsonSerializationSettings;
 import com.dev4sep.base.config.serialization.DefaultToApiJsonSerializer;
+import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 import com.dev4sep.base.organisation.office.service.OfficeReadPlatformService;
 import jakarta.ws.rs.*;
@@ -54,10 +55,13 @@ public class OfficesApiResource {
         this.context.authenticatedUser().validateHasReadPermission(OfficesApiConstants.PERMISSIONS);
 
         RequestParameters requestParameters = RequestParameters.builder().orderBy(orderBy).sortOrder(sortOrder).offset(offset).limit(limit).build();
-        List<OfficeData> offices = this.officeReadPlatformService.getAllOffices(includeAllOffices, requestParameters);
+        Page<OfficeData> offices = this.officeReadPlatformService.getAllOffices(includeAllOffices, requestParameters);
 
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
-        return this.toApiJsonSerializer.serialize(settings, offices, OfficesApiConstants.RESPONSE_PARAMETERS);
+        if (settings.isPagination()) {
+            return this.toApiJsonSerializer.serialize(settings, offices, OfficesApiConstants.RESPONSE_PARAMETERS);
+        }
+        return this.toApiJsonSerializer.serialize(settings, offices.getPageItems(), OfficesApiConstants.RESPONSE_PARAMETERS);
     }
 
     @GET

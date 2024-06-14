@@ -13,18 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.organisation.office.service;
+package com.dev4sep.base.config.service;
 
-import com.dev4sep.base.config.data.RequestParameters;
-import com.dev4sep.base.config.service.Page;
-import com.dev4sep.base.organisation.office.data.OfficeData;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author YISivlay
  */
-public interface OfficeReadPlatformService {
+public class Page<E> implements Serializable {
 
-    Page<OfficeData> getAllOffices(final boolean includeAllOffices, final RequestParameters requestParameters);
+    private final Integer totalRecords;
+    private final List<E> pageItems;
 
-    OfficeData getOneOffices(final Long id);
+    public Page(final List<E> pageItems, final Integer totalFilteredRecords) {
+        this.pageItems = pageItems;
+        this.totalRecords = totalFilteredRecords;
+    }
+
+    public int getTotalRecords() {
+        return this.totalRecords;
+    }
+
+    public List<E> getPageItems() {
+        return this.pageItems;
+    }
+
 }

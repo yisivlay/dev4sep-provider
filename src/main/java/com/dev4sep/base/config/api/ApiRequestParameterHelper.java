@@ -38,8 +38,9 @@ public class ApiRequestParameterHelper {
         final boolean template = ApiParameterHelper.template(queryParameters);
         final boolean makerChecker = ApiParameterHelper.makerChecker(queryParameters);
         final boolean includeJson = ApiParameterHelper.includeJson(queryParameters);
+        final boolean pagination = ApiParameterHelper.pagination(queryParameters);
 
-        return ApiRequestJsonSerializationSettings.from(prettyPrint, responseParameters, template, makerChecker, includeJson);
+        return ApiRequestJsonSerializationSettings.from(prettyPrint, responseParameters, template, makerChecker, includeJson, pagination);
     }
 
     public ApiRequestJsonSerializationSettings process(final MultivaluedMap<String, String> queryParameters) {
@@ -49,8 +50,9 @@ public class ApiRequestParameterHelper {
         final boolean template = ApiParameterHelper.template(queryParameters);
         final boolean makerChecker = ApiParameterHelper.makerChecker(queryParameters);
         final boolean includeJson = ApiParameterHelper.includeJson(queryParameters);
+        final boolean pagination = ApiParameterHelper.pagination(queryParameters);
 
-        return ApiRequestJsonSerializationSettings.from(prettyPrint, responseParameters, template, makerChecker, includeJson);
+        return ApiRequestJsonSerializationSettings.from(prettyPrint, responseParameters, template, makerChecker, includeJson, pagination);
     }
 
 }

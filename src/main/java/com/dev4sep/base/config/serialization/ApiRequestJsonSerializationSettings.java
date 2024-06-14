@@ -27,27 +27,31 @@ public class ApiRequestJsonSerializationSettings {
     private final boolean template;
     private final boolean makerChecker;
     private final boolean includeJson;
+    private final boolean pagination;
 
     public ApiRequestJsonSerializationSettings(boolean prettyPrint,
                                                Set<String> parametersForPartialResponse,
                                                boolean template,
                                                boolean makerChecker,
-                                               boolean includeJson) {
+                                               boolean includeJson,
+                                               boolean pagination) {
         this.prettyPrint = prettyPrint;
         this.parametersForPartialResponse = parametersForPartialResponse;
         this.template = template;
         this.makerChecker = makerChecker;
         this.includeJson = includeJson;
+        this.pagination = pagination;
     }
 
     public static ApiRequestJsonSerializationSettings from(final boolean prettyPrint,
                                                            final Set<String> parametersForPartialResponse,
                                                            final boolean template,
                                                            final boolean makerChecker,
-                                                           final boolean includeJson) {
+                                                           final boolean includeJson,
+                                                           final boolean pagination) {
 
         // just send by common ones like, prettyprint=false, empty response parameters
-        return new ApiRequestJsonSerializationSettings(prettyPrint, parametersForPartialResponse, template, makerChecker, includeJson);
+        return new ApiRequestJsonSerializationSettings(prettyPrint, parametersForPartialResponse, template, makerChecker, includeJson, pagination);
     }
 
     public boolean isPartialResponseRequired() {
@@ -60,5 +64,9 @@ public class ApiRequestJsonSerializationSettings {
 
     public Set<String> getParametersForPartialResponse() {
         return this.parametersForPartialResponse;
+    }
+
+    public boolean isPagination() {
+        return this.pagination;
     }
 }

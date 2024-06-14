@@ -75,4 +75,13 @@ public final class ApiParameterHelper {
         return includeJson;
     }
 
+    public static boolean pagination(final MultivaluedMap<String, String> queryParams) {
+        boolean pagination = false;
+        if (queryParams.getFirst("pagination") != null) {
+            final String prettyPrintValue = queryParams.getFirst("pagination");
+            pagination = "true".equalsIgnoreCase(prettyPrintValue);
+        }
+        return pagination;
+    }
+
 }

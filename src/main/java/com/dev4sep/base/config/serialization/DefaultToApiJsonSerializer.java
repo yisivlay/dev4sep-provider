@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.config.serialization;
 
+import com.dev4sep.base.config.service.Page;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -98,5 +99,11 @@ public class DefaultToApiJsonSerializer<T> implements ToApiJsonSerializer<T> {
                             final Set<String> supportedResponseParameters) {
         final var delegatedSerializer = findAppropriateSerializer(settings, supportedResponseParameters);
         return serializeWithSettings(delegatedSerializer, settings, collection.toArray());
+    }
+
+    @Override
+    public String serialize(ApiRequestJsonSerializationSettings settings, Page<T> page, Set<String> supportedResponseParameters) {
+        final Gson delegatedSerializer = findAppropriateSerializer(settings, supportedResponseParameters);
+        return serializeWithSettings(delegatedSerializer, settings, page);
     }
 }
