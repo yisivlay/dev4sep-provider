@@ -33,15 +33,11 @@ import org.springframework.stereotype.Component;
 @Provider
 @Component
 @Scope("singleton")
-public class PlatformDataIntegrityExceptionMapper implements CustomExceptionMapper, ExceptionMapper<PlatformDataIntegrityException> {
-    @Override
-    public int errorCode() {
-        return 3001;
-    }
+public class PlatformDataIntegrityExceptionMapper implements ExceptionMapper<PlatformDataIntegrityException> {
 
     @Override
     public Response toResponse(PlatformDataIntegrityException exception) {
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         final ApiGlobalErrorResponse dataIntegrityError = ApiGlobalErrorResponse.dataIntegrityError(exception.getMsgCode(), exception.getUserMsg(), exception.getParameterName(), exception.getUserMsgArgs());
 
         return Response.status(Response.Status.FORBIDDEN).entity(dataIntegrityError).type(MediaType.APPLICATION_JSON).build();

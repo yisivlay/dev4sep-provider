@@ -25,27 +25,25 @@ import java.util.List;
  */
 public final class ApiParameterError {
 
-    private final String developerMsg;
-    private final String userMsg;
-    private final String userMsgCode;
+    private final String message;
+    private final String code;
     private final Object value;
     private final List<ApiErrorMessageArg> args;
     private String parameterName;
 
-    public ApiParameterError(final String msgCode,
-                             final String userMsg,
-                             final Object[] userMsgArgs,
+    public ApiParameterError(final String code,
+                             final String message,
+                             final Object[] args,
                              String parameterName,
                              String value) {
-        this.developerMsg = userMsg;
-        this.userMsg = userMsg;
-        this.userMsgCode = msgCode;
+        this.message = message;
+        this.code = code;
         this.parameterName = parameterName;
         this.value = value;
 
         final List<ApiErrorMessageArg> msgArgs = new ArrayList<>();
-        if (userMsgArgs != null) {
-            for (final var object : userMsgArgs) {
+        if (args != null) {
+            for (final var object : args) {
                 if (object instanceof LocalDate) {
                     final var dateFormatter = new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd").toFormatter();
                     final var formattedDate = dateFormatter.format((LocalDate) object);
@@ -58,43 +56,39 @@ public final class ApiParameterError {
         this.args = msgArgs;
     }
 
-    public static ApiParameterError parameterError(final String msgCode,
-                                                   final String userMsg,
+    public static ApiParameterError parameterError(final String code,
+                                                   final String message,
                                                    final String parameterName,
-                                                   final Object... userMsgArgs) {
-        return new ApiParameterError(msgCode, userMsg, userMsgArgs, parameterName, null);
+                                                   final Object... args) {
+        return new ApiParameterError(code, message, args, parameterName, null);
     }
 
-    public static ApiParameterError generalError(final String msgCode,
-                                                 final String userMsg,
-                                                 final Object... userMsgArgs) {
-        return new ApiParameterError(msgCode, userMsg, userMsgArgs, "id", null);
+    public static ApiParameterError generalError(final String code,
+                                                 final String message,
+                                                 final Object... args) {
+        return new ApiParameterError(code, message, args, "id", null);
     }
 
-    public static ApiParameterError resourceIdentifierNotFound(final String msgCode,
-                                                               final String userMsg,
-                                                               final Object... userMsgArgs) {
-        return new ApiParameterError(msgCode, userMsg, userMsgArgs, "id", null);
+    public static ApiParameterError resourceIdentifierNotFound(final String code,
+                                                               final String message,
+                                                               final Object... args) {
+        return new ApiParameterError(code, message, args, "id", null);
     }
 
-    public static ApiParameterError parameterErrorWithValue(final String msgCode,
-                                                            final String userMsg,
+    public static ApiParameterError parameterErrorWithValue(final String code,
+                                                            final String message,
                                                             final String parameterName,
                                                             final String value,
-                                                            final Object... userMsgArgs) {
-        return new ApiParameterError(msgCode, userMsg, userMsgArgs, parameterName, value);
+                                                            final Object... args) {
+        return new ApiParameterError(code, message, args, parameterName, value);
     }
 
-    public String getDeveloperMsg() {
-        return this.developerMsg;
+    public String getMessage() {
+        return this.message;
     }
 
-    public String getUserMsg() {
-        return this.userMsg;
-    }
-
-    public String getUserMsgCode() {
-        return this.userMsgCode;
+    public String getCode() {
+        return this.code;
     }
 
     public String getParameterName() {
@@ -115,6 +109,6 @@ public final class ApiParameterError {
 
     @Override
     public String toString() {
-        return developerMsg;
+        return message;
     }
 }

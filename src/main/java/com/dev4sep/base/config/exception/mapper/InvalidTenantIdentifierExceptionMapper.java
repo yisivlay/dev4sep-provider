@@ -37,7 +37,7 @@ public class InvalidTenantIdentifierExceptionMapper implements ExceptionMapper<I
 
     @Override
     public Response toResponse(InvalidTenantIdentifierException exception) {
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         return Response.status(Response.Status.UNAUTHORIZED).entity(ApiGlobalErrorResponse.invalidTenantIdentifier())
                 .type(MediaType.APPLICATION_JSON).build();
     }

@@ -33,15 +33,11 @@ import org.springframework.stereotype.Component;
 @Provider
 @Component
 @Scope("singleton")
-public class PlatformApiDataValidationExceptionMapper implements CustomExceptionMapper, ExceptionMapper<PlatformApiDataValidationException> {
-    @Override
-    public int errorCode() {
-        return 2002;
-    }
+public class PlatformApiDataValidationExceptionMapper implements ExceptionMapper<PlatformApiDataValidationException> {
 
     @Override
     public Response toResponse(PlatformApiDataValidationException exception) {
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         final ApiGlobalErrorResponse dataValidationErrorResponse = ApiGlobalErrorResponse.badClientRequest(exception.getMsgCode(), exception.getUserMsg(), exception.getErrors());
 
         return Response.status(Response.Status.BAD_REQUEST).entity(dataValidationErrorResponse).type(MediaType.APPLICATION_JSON).build();

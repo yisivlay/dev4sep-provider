@@ -31,74 +31,69 @@ import static org.apache.http.HttpStatus.*;
 @Setter(AccessLevel.PROTECTED)
 public class ApiGlobalErrorResponse {
 
-    private String developerMsg;
-    private String httpStatusCode;
-    private String userMsg;
-    private String userMsgCode;
+    private int status;
+    private String message;
+    private String code;
     private List<ApiParameterError> errors = new ArrayList<>();
 
     protected ApiGlobalErrorResponse() {
     }
 
-    public static ApiGlobalErrorResponse create(int statusCode,
-                                                String msgCode,
-                                                String developerMessage,
-                                                String defaultUserMessage,
+    public static ApiGlobalErrorResponse create(int status,
+                                                String code,
+                                                String message,
                                                 List<ApiParameterError> errors) {
         ApiGlobalErrorResponse response = new ApiGlobalErrorResponse();
-        response.setHttpStatusCode(String.valueOf(statusCode));
-        response.setUserMsgCode(msgCode);
-        response.setDeveloperMsg(developerMessage);
-        response.setUserMsg(defaultUserMessage);
+        response.setStatus(status);
+        response.setMessage(message);
+        response.setCode(code);
         response.setErrors(errors);
         return response;
     }
 
-    public static ApiGlobalErrorResponse create(int statusCode,
-                                                String msgCode,
-                                                String developerMsg,
-                                                String userMsg) {
-        return create(statusCode, msgCode, developerMsg, userMsg, null);
+    public static ApiGlobalErrorResponse create(int status,
+                                                String code,
+                                                String message) {
+        return create(status, code, message, null);
     }
 
-    public static ApiGlobalErrorResponse badClientRequest(final String msgCode,
-                                                          final String userMsg,
+    public static ApiGlobalErrorResponse badClientRequest(final String code,
+                                                          final String message,
                                                           final List<ApiParameterError> errors) {
-        return create(SC_BAD_REQUEST, msgCode, "The request was invalid. This typically will happen due to validation errors which are provided.", userMsg, errors);
+        return create(SC_BAD_REQUEST, code, message, errors);
     }
 
-    public static ApiGlobalErrorResponse serverSideError(final String msgCode,
-                                                         final String userMsg,
-                                                         final Object... userMsgArgs) {
-        String msg = "An unexpected error occurred on the platform server.";
+    public static ApiGlobalErrorResponse serverSideError(final String code,
+                                                         final String message,
+                                                         final Object... args) {
+        String msg = "Internal server error";
         final List<ApiParameterError> errors = new ArrayList<>();
-        errors.add(ApiParameterError.generalError(msgCode, userMsg, userMsgArgs));
+        errors.add(ApiParameterError.generalError(code, message, args));
 
-        return create(SC_INTERNAL_SERVER_ERROR, "error.msg.platform.server.side.error", msg, msg, errors);
+        return create(SC_INTERNAL_SERVER_ERROR, "error.msg.platform.server.side.error", msg, errors);
     }
 
-    public static ApiGlobalErrorResponse notFound(final String msgCode,
-                                                  final String userMsg,
-                                                  final Object... userMsgArgs) {
-        String msg = "The requested resource is not available.";
+    public static ApiGlobalErrorResponse notFound(final String code,
+                                                  final String message,
+                                                  final Object... args) {
+        String msg = "Not found";
         final List<ApiParameterError> errors = new ArrayList<>();
-        errors.add(ApiParameterError.resourceIdentifierNotFound(msgCode, userMsg, userMsgArgs));
+        errors.add(ApiParameterError.resourceIdentifierNotFound(code, message, args));
 
-        return create(SC_NOT_FOUND, "error.msg.resource.not.found", msg, msg, errors);
+        return create(SC_NOT_FOUND, "error.msg.resource.not.found", msg, errors);
     }
 
-    public static ApiGlobalErrorResponse dataIntegrityError(final String msgCode,
-                                                            final String userMsg,
+    public static ApiGlobalErrorResponse dataIntegrityError(final String code,
+                                                            final String message,
                                                             final String parameterName,
-                                                            final Object... userMsgArgs) {
+                                                            final Object... args) {
         final List<ApiParameterError> errors = new ArrayList<>();
-        errors.add(ApiParameterError.parameterError(msgCode, userMsg, parameterName, userMsgArgs));
+        errors.add(ApiParameterError.parameterError(code, message, parameterName, args));
 
-        return create(SC_FORBIDDEN, msgCode, "The request caused a data integrity issue to be fired by the database.", userMsg, errors);
+        return create(SC_FORBIDDEN, code, message, errors);
     }
 
     public static ApiGlobalErrorResponse invalidTenantIdentifier() {
-        return create(SC_UNAUTHORIZED, "error.msg.invalid.tenant.identifier", "Invalid tenant details were passed in api request.",
-                "Invalid tenant identifier provided with request.");
+        return create(SC_UNAUTHORIZED, "error.msg.invalid.tenant.identifier", "Invalid tenant details were passed in api request.");
     }
 }

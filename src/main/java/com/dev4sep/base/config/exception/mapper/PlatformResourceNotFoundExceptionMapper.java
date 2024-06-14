@@ -37,7 +37,7 @@ public class PlatformResourceNotFoundExceptionMapper implements ExceptionMapper<
 
     @Override
     public Response toResponse(AbstractPlatformResourceNotFoundException exception) {
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         final ApiGlobalErrorResponse notFoundErrorResponse = ApiGlobalErrorResponse.notFound(exception.getMsgCode(), exception.getUserMsg(), exception.getUserMsgArgs());
         return Response.status(Response.Status.NOT_FOUND).entity(notFoundErrorResponse).type(MediaType.APPLICATION_JSON).build();
     }

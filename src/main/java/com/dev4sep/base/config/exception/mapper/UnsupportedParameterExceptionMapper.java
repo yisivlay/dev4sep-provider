@@ -37,11 +37,7 @@ import java.util.List;
 @Provider
 @Component
 @Scope("singleton")
-public class UnsupportedParameterExceptionMapper implements CustomExceptionMapper, ExceptionMapper<UnsupportedParameterException> {
-    @Override
-    public int errorCode() {
-        return 2001;
-    }
+public class UnsupportedParameterExceptionMapper implements ExceptionMapper<UnsupportedParameterException> {
 
     @Override
     public Response toResponse(UnsupportedParameterException exception) {
@@ -53,7 +49,7 @@ public class UnsupportedParameterExceptionMapper implements CustomExceptionMappe
 
             errors.add(error);
         }
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
 
         final ApiGlobalErrorResponse invalidParameterError = ApiGlobalErrorResponse.badClientRequest("validation.msg.validation.errors.exist", "Validation errors exist.", errors);
 

@@ -34,15 +34,11 @@ import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
 @Slf4j
 @Component
 @Scope("singleton")
-public class DefaultExceptionMapper implements CustomExceptionMapper, ExceptionMapper<RuntimeException> {
-    @Override
-    public int errorCode() {
-        return 9999;
-    }
+public class DefaultExceptionMapper implements ExceptionMapper<RuntimeException> {
 
     @Override
     public Response toResponse(RuntimeException exception) {
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         return Response.status(SC_INTERNAL_SERVER_ERROR)
                 .entity(Map.of("Exception", ObjectUtils.defaultIfNull(exception.getMessage(), "No error message available")))
                 .type(MediaType.APPLICATION_JSON).build();

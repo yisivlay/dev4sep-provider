@@ -25,14 +25,14 @@ import org.springframework.dao.EmptyResultDataAccessException;
 public class OfficeNotFoundException extends AbstractPlatformResourceNotFoundException {
 
     public OfficeNotFoundException(final Long id) {
-        super("error.msg.office.id.invalid", "Office with identifier " + id + " does not exist", id);
+        super("error.msg.office.id.invalid", "Office does not exist", id);
     }
 
     public OfficeNotFoundException(Long id, EmptyResultDataAccessException e) {
-        super("error.msg.office.id.invalid", "Office with identifier " + id + " does not exist", id, e);
+        super("error.msg.office.id.invalid", "Office does not exist", id, e);
     }
 
     public OfficeNotFoundException(ExternalId externalId) {
-        super("error.msg.office.external.id.invalid", "Office with external identifier " + externalId + " does not exist", externalId);
+        super("error.msg.office.external.id.invalid", "Office does not exist", externalId);
     }
 }

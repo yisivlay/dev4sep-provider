@@ -33,15 +33,11 @@ import org.springframework.stereotype.Component;
 @Provider
 @Component
 @Scope("singleton")
-public class PlatformInternalServerExceptionMapper implements CustomExceptionMapper, ExceptionMapper<PlatformInternalServerException> {
-    @Override
-    public int errorCode() {
-        return 5001;
-    }
+public class PlatformInternalServerExceptionMapper implements ExceptionMapper<PlatformInternalServerException> {
 
     @Override
     public Response toResponse(final PlatformInternalServerException exception) {
-        log.warn("Exception occurred", ErrorHandler.findMostSpecificException(exception));
+        log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         final ApiGlobalErrorResponse notFoundErrorResponse = ApiGlobalErrorResponse.serverSideError(exception.getMsgCode(), exception.getMsgCode(), exception.getUserMsgArgs());
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(notFoundErrorResponse).type(MediaType.APPLICATION_JSON).build();
     }
