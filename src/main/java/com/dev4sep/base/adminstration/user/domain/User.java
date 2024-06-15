@@ -105,7 +105,7 @@ public class User extends AbstractPersistableCustom implements PlatformUser {
     }
 
     private boolean hasPermissionTo(final String permissionCode) {
-        boolean hasPermission = hasAllFunctionsPermission();
+        var hasPermission = hasAllFunctionsPermission();
         if (!hasPermission) {
             if (this.roles.stream().anyMatch(role -> role.hasPermissionTo(permissionCode))) {
                 hasPermission = true;
@@ -115,9 +115,9 @@ public class User extends AbstractPersistableCustom implements PlatformUser {
     }
 
     public boolean hasNotPermissionForAnyOf(final String... permissionCodes) {
-        boolean hasNotPermission = true;
-        for (final String permissionCode : permissionCodes) {
-            final boolean checkPermission = hasPermissionTo(permissionCode);
+        var hasNotPermission = true;
+        for (final var permissionCode : permissionCodes) {
+            final var checkPermission = hasPermissionTo(permissionCode);
             if (checkPermission) {
                 hasNotPermission = false;
                 break;
@@ -127,8 +127,8 @@ public class User extends AbstractPersistableCustom implements PlatformUser {
     }
 
     private void validateHasPermission(final String prefix, final String resourceType) {
-        final String authorizationMessage = "User has no authority to " + prefix + " " + resourceType.toLowerCase() + "s";
-        final String matchPermission = prefix + "_" + resourceType.toUpperCase();
+        final var authorizationMessage = "User has no authority to " + prefix + " " + resourceType.toLowerCase() + "s";
+        final var matchPermission = prefix + "_" + resourceType.toUpperCase();
 
         if (!hasNotPermissionForAnyOf("ALL_FUNCTIONS", "ALL_FUNCTIONS_READ", matchPermission)) {
             return;
@@ -151,6 +151,17 @@ public class User extends AbstractPersistableCustom implements PlatformUser {
                 .flatMap(Collection::stream)
                 .map(permission -> new SimpleGrantedAuthority(permission.getCode()))
                 .collect(Collectors.toList());
+    }
+
+    private boolean hasNotPermissionTo(final String permissionCode) {
+        return !hasPermissionTo(permissionCode);
+    }
+
+    public void validateHasPermissionTo(final String function) {
+        if (hasNotPermissionTo(function)) {
+            final String authorizationMessage = "User has no authority to: " + function;
+            throw new NoAuthorizationException(authorizationMessage);
+        }
     }
 
     public Office getOffice() {

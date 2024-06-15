@@ -13,20 +13,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.security.service;
+package com.dev4sep.base.config.command.exception;
 
-import com.dev4sep.base.adminstration.user.domain.User;
+import com.dev4sep.base.config.command.domain.CommandSource;
 import com.dev4sep.base.config.command.domain.CommandWrapper;
+import com.dev4sep.base.config.exception.AbstractCommandSourceException;
 
 /**
  * @author YISivlay
  */
-public interface PlatformSecurityContext extends PlatformUserRightsContext {
+public class CommandSourceProcessSucceedException extends AbstractCommandSourceException {
+    private final Integer status;
 
-    User authenticatedUser();
+    public CommandSourceProcessSucceedException(CommandWrapper request, CommandSource command) {
+        super(request.getActionName(), request.getEntityName(), command.getResult());
+        this.status = command.getResultStatusCode();
+    }
 
-    User authenticatedUser(CommandWrapper request);
-
-    boolean doesPasswordHasToBeRenewed(User currentUser);
-
+    public Integer getStatus() {
+        return status;
+    }
 }

@@ -25,6 +25,7 @@ import java.util.Set;
 public class OfficesApiConstants {
 
     public static final String PERMISSIONS = "OFFICE";
+    public static final String PATH = "/offices";
 
     private static final String id = "id";
     private static final String name = "name";

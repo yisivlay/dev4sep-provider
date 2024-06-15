@@ -13,19 +13,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.permission.domain;
+package com.dev4sep.base.config.command.domain;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import com.dev4sep.base.config.serialization.FromJsonHelper;
+import com.google.gson.JsonElement;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * @author YISivlay
  */
-public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
+@Getter
+@Builder
+public class JsonCommand {
 
-    @Query("SELECT p FROM Permission p WHERE LOWER(TRIM(BOTH FROM p.code)) = LOWER(TRIM(BOTH FROM ?1))")
-    Permission findOneByCode(@Param("code") String code);
-
+    private final String json;
+    private final JsonElement parsedCommand;
+    private final FromJsonHelper fromApiJsonHelper;
+    private final Long commandId;
+    private final Long resourceId;
+    private final Long subresourceId;
+    private final String entityName;
+    private final String href;
 }
