@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+
+  db:
+    image: mariadb
+    restart: always
+    ports:
+      - '3305:3306'
+    expose:
+      - 3305
+    environment:
+      MARIADB_ROOT_PASSWORD: admin@2024!
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - '8080:8080'
