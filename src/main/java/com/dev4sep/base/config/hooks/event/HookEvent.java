@@ -13,16 +13,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.hooks.event;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.dev4sep.base.adminstration.user.domain.User;
+import com.dev4sep.base.config.domain.Context;
+import lombok.Getter;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+@Getter
+public class HookEvent extends Event {
 
-    Configuration findOneByName(String name);
+    private final String payload;
+    private final User user;
 
+    public HookEvent(final HookEventSource source, final String payload, final User user, Context context) {
+        super(source, context);
+        this.payload = payload;
+        this.user = user;
+    }
 }

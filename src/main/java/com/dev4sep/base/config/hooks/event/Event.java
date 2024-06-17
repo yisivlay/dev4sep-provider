@@ -13,16 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.hooks.event;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.dev4sep.base.config.domain.Context;
+import com.dev4sep.base.config.domain.ContextHolder;
+import org.springframework.context.ApplicationEvent;
+
+import java.io.Serializable;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+public abstract class Event extends ApplicationEvent implements ContextHolder, Serializable {
 
-    Configuration findOneByName(String name);
+    private final Context context;
 
+    public Event(Object source, Context context) {
+        super(source);
+        this.context = context;
+    }
+
+    @Override
+    public Context getContext() {
+        return context;
+    }
 }

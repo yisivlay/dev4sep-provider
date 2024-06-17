@@ -13,16 +13,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.command.handler;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.dev4sep.base.config.command.domain.CommandProcessing;
+import com.dev4sep.base.config.command.domain.JsonCommand;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+public interface CommandSourceHandler {
 
-    Configuration findOneByName(String name);
+    CommandProcessing processCommand(JsonCommand command);
 
 }

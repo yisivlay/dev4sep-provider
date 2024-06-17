@@ -13,16 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.configuration.exception;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
-
-    Configuration findOneByName(String name);
-
+public class ConfigurationNotFoundException extends AbstractPlatformResourceNotFoundException {
+    public ConfigurationNotFoundException(final String name) {
+        super("error.msg.configuration.invalid", "Configuration `" + name + "` does not exist", name);
+    }
 }

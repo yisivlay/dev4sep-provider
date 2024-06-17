@@ -13,16 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.command.annotation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import java.lang.annotation.*;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface CommandType {
 
-    Configuration findOneByName(String name);
+    /**
+     * Returns the name of the entity for this {@link CommandType}.
+     */
+    String entity();
 
+    /**
+     * Return the name of the action for this {@link CommandType}.
+     */
+    String action();
 }

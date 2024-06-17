@@ -13,16 +13,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+package com.dev4sep.base.config.command.exception;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+public class UnsupportedCommandException extends RuntimeException {
 
-    Configuration findOneByName(String name);
+    private final String unsupportedCommandName;
 
+    public UnsupportedCommandException(final String unsupportedCommandName) {
+        this.unsupportedCommandName = unsupportedCommandName;
+    }
+
+    public UnsupportedCommandException(final String unsupportedCommandName, String message) {
+        super(message);
+        this.unsupportedCommandName = unsupportedCommandName;
+    }
+
+    public String getUnsupportedCommandName() {
+        return this.unsupportedCommandName;
+    }
 }

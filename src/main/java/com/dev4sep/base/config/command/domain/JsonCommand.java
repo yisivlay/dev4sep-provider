@@ -19,6 +19,10 @@ import com.dev4sep.base.config.serialization.FromJsonHelper;
 import com.google.gson.JsonElement;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * @author YISivlay
@@ -35,4 +39,25 @@ public class JsonCommand {
     private final Long subresourceId;
     private final String entityName;
     private final String href;
+
+    public Long commandId() {
+        return this.commandId;
+    }
+
+    public Long longValueOfParameterNamed(final String parameterName) {
+        return this.fromApiJsonHelper.extractLongNamed(parameterName, this.parsedCommand);
+    }
+
+    public LocalDate localDateValueOfParameterNamed(final String parameterName) {
+        return this.fromApiJsonHelper.extractLocalDateNamed(parameterName, this.parsedCommand);
+    }
+
+    public String stringValueOfParameterNamed(final String parameterName) {
+        final String value = this.fromApiJsonHelper.extractStringNamed(parameterName, this.parsedCommand);
+        return StringUtils.defaultIfEmpty(value, "");
+    }
+
+    public String stringValueOfParameterNamedAllowingNull(final String parameterName) {
+        return this.fromApiJsonHelper.extractStringNamed(parameterName, this.parsedCommand);
+    }
 }

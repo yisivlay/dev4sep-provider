@@ -13,16 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.domain;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.dev4sep.base.config.datasource.database.domain.PlatformTenant;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
+
+import java.io.Serializable;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+@AllArgsConstructor
+@Jacksonized
+@Builder
+@Getter
+public class Context implements Serializable {
 
-    Configuration findOneByName(String name);
+    private final String contextHolder;
+    private final PlatformTenant tenantContext;
+    private final String authTokenContext;
+    private final ActionContext actionContext;
 
 }

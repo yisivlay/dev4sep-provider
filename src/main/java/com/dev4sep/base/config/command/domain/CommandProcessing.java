@@ -28,12 +28,21 @@ import java.util.Map;
 @Getter
 public class CommandProcessing implements Serializable {
 
-    private final Long commandId;
-    private final Long officeId;
+    private Long commandId;
+    private Long officeId;
     private final Long resourceId;
     private final Long subResourceId;
     private final Map<String, Object> changes;
-    private final Boolean rollbackTransaction;
+    private Boolean rollbackTransaction;
+
+    public CommandProcessing() {
+        this.commandId = null;
+        this.officeId = null;
+        this.resourceId = null;
+        this.subResourceId = null;
+        this.changes = null;
+        this.rollbackTransaction = null;
+    }
 
     public CommandProcessing(final Long commandId,
                              final Long officeId,
@@ -47,5 +56,40 @@ public class CommandProcessing implements Serializable {
         this.subResourceId = subResourceId;
         this.changes = changes;
         this.rollbackTransaction = rollbackTransaction;
+    }
+
+    public void setOfficeId(final Long officeId) {
+        this.officeId = officeId;
+    }
+
+    public static CommandProcessing fromDetails(Long commandId, Long officeId, Long resourceId, Long subResourceId, Map<String, Object> changes, boolean rollbackTransaction) {
+        return new CommandProcessing(commandId, officeId, resourceId, subResourceId, changes, rollbackTransaction);
+    }
+
+    public static CommandProcessing fromCommandProcessing(CommandProcessing result) {
+        return fromCommandProcessing(result, result.getResourceId());
+    }
+
+    public static CommandProcessing fromCommandProcessing(CommandProcessing result, final Long resourceId) {
+        return new CommandProcessing(
+                result.commandId,
+                result.officeId,
+                resourceId,
+                result.subResourceId,
+                result.changes,
+                result.rollbackTransaction
+        );
+    }
+
+    public static CommandProcessing empty() {
+        return new CommandProcessing();
+    }
+
+    public void setRollbackTransaction(Boolean rollbackTransaction) {
+        this.rollbackTransaction = rollbackTransaction;
+    }
+
+    public boolean isRollbackTransaction() {
+        return this.rollbackTransaction != null && this.rollbackTransaction;
     }
 }

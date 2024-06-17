@@ -22,6 +22,8 @@ import lombok.Getter;
  */
 public abstract class AbstractCommandSourceException extends AbstractPlatformException {
 
+    public static final String CACHE_HEADER = "x-served-from-cache";
+
     @Getter
     private final String action;
     @Getter

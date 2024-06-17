@@ -13,16 +13,30 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.command.exception;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import com.dev4sep.base.config.command.domain.Header;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Set;
+
+import static lombok.AccessLevel.PROTECTED;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+@Getter
+@Setter(PROTECTED)
+@NoArgsConstructor(access = PROTECTED)
+@AllArgsConstructor
+public final class ErrorInfo {
 
-    Configuration findOneByName(String name);
+    private Integer statusCode;
+    private Integer errorCode;
+    private String message;
+    private Set<Header> headers;
 
 }

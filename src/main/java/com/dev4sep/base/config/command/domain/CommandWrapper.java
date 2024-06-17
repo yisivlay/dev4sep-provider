@@ -53,6 +53,58 @@ public class CommandWrapper {
         this.json = json;
     }
 
+    private CommandWrapper(final String actionName, final String entityName) {
+        this.commandId = null;
+        this.officeId = null;
+        this.actionName = actionName;
+        this.entityName = entityName;
+        this.taskPermissionName = actionName + "_" + entityName;
+        this.resourceId = null;
+        this.subResourceId = null;
+        this.href = null;
+        this.json = null;
+    }
+
+    private CommandWrapper(final String actionName,
+                           final String entityName,
+                           final Long resourceId,
+                           final Long subResourceId) {
+        this.commandId = null;
+        this.officeId = null;
+        this.actionName = actionName;
+        this.entityName = entityName;
+        this.taskPermissionName = actionName + "_" + entityName;
+        this.resourceId = resourceId;
+        this.subResourceId = subResourceId;
+        this.href = null;
+        this.json = null;
+    }
+
+    private CommandWrapper(final Long commandId,
+                           final String actionName,
+                           final String entityName,
+                           final Long resourceId,
+                           final Long subResourceId,
+                           final String href) {
+        this.commandId = commandId;
+        this.officeId = null;
+        this.actionName = actionName;
+        this.entityName = entityName;
+        this.taskPermissionName = actionName + "_" + entityName;
+        this.resourceId = resourceId;
+        this.subResourceId = subResourceId;
+        this.href = href;
+        this.json = null;
+    }
+
+    public static CommandWrapper wrap(final String actionName, final String entityName, final Long resourceId, final Long subresourceId) {
+        return new CommandWrapper(actionName, entityName, resourceId, subresourceId);
+    }
+
+    public static CommandWrapper wrap(final String actionName, final String entityName) {
+        return new CommandWrapper(actionName, entityName);
+    }
+
     public boolean isPermissionResource() {
         return this.entityName.equalsIgnoreCase("PERMISSION");
     }
@@ -81,5 +133,9 @@ public class CommandWrapper {
 
     public boolean isUpdateOfOwnUserDetails(final Long loggedInUserId) {
         return isUserResource() && isUpdate() && loggedInUserId.equals(this.resourceId);
+    }
+
+    public String taskPermissionName() {
+        return this.actionName + "_" + this.entityName;
     }
 }

@@ -16,11 +16,11 @@
 package com.dev4sep.base.config.command.service;
 
 import com.dev4sep.base.adminstration.user.domain.User;
-import com.dev4sep.base.config.command.domain.CommandSource;
-import com.dev4sep.base.config.command.domain.CommandSourceRepository;
-import com.dev4sep.base.config.command.domain.CommandWrapper;
-import com.dev4sep.base.config.command.domain.JsonCommand;
+import com.dev4sep.base.config.command.domain.*;
 import com.dev4sep.base.config.command.exception.CommandSourceNotFoundException;
+import com.dev4sep.base.config.command.exception.ErrorInfo;
+import com.dev4sep.base.config.command.exception.RollbackTransactionNotApprovedException;
+import com.dev4sep.base.config.command.handler.CommandSourceHandler;
 import com.dev4sep.base.config.exception.ErrorHandler;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +67,41 @@ public class CommandSourceService {
 
     @NotNull
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
-    public CommandSource saveInitialNewTransaction(CommandWrapper wrapper, JsonCommand jsonCommand, AppUser maker, String idempotencyKey) {
-        return saveInitial(wrapper, jsonCommand, maker, idempotencyKey);
+    public CommandSource saveInitialNewTransaction(CommandWrapper wrapper, JsonCommand jsonCommand, User maker) {
+        return saveInitial(wrapper, jsonCommand, maker);
+    }
+
+    public CommandProcessing processCommand(CommandSourceHandler commandHandler,
+                                            JsonCommand command,
+                                            CommandSource commandSource,
+                                            User user,
+                                            boolean isApprovedByChecker,
+                                            boolean isMakerChecker) {
+        final CommandProcessing result = commandHandler.processCommand(command);
+        boolean isRollback = !isApprovedByChecker && !user.isCheckerSuperUser() && (isMakerChecker || result.isRollbackTransaction());
+        if (isRollback) {
+            commandSource.markAsAwaitingApproval();
+            throw new RollbackTransactionNotApprovedException(commandSource.getId(), commandSource.getResourceId());
+        }
+        return result;
+    }
+
+    @NotNull
+    private CommandSource saveResult(@NotNull CommandSource commandSource) {
+        return commandSourceRepository.saveAndFlush(commandSource);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public CommandSource saveResultSameTransaction(@NotNull CommandSource commandSource) {
+        return saveResult(commandSource);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.REPEATABLE_READ)
+    public CommandSource saveResultNewTransaction(@NotNull CommandSource commandSource) {
+        return saveResult(commandSource);
+    }
+
+    public ErrorInfo generateErrorInfo(Throwable t) {
+        return errorHandler.handle(ErrorHandler.getMappable(t));
     }
 }

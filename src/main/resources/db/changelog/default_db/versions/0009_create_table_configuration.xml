@@ -21,7 +21,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
     <changeSet id="1" author="dev4sep">
         <createTable tableName="tbl_configuration">
-            <column name="id" type="bigint(20)">
+            <column autoIncrement="true" name="id" type="BIGINT">
                 <constraints nullable="false" primaryKey="true"/>
             </column>
             <column defaultValue="NULL" name="name" type="varchar(100)"/>
@@ -30,11 +30,18 @@
             <column defaultValue="NULL" name="string_value" type="varchar(100)"/>
             <column defaultValueNumeric="0" name="enabled" type="tinyint(1)"/>
             <column defaultValueNumeric="0" name="is_trap_door" type="tinyint(1)"/>
-            <column defaultValue="NULL" name="description" type="description(300)"/>
+            <column defaultValue="NULL" name="description" type="varchar(300)"/>
         </createTable>
         <insert tableName="tbl_configuration">
             <column name="id" valueNumeric="1"/>
             <column name="name" value="maker-checker"/>
+            <column name="enabled" valueNumeric="0"/>
+            <column name="is_trap_door" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_configuration">
+            <column name="id" valueNumeric="2"/>
+            <column name="name" value="force-password-reset-days"/>
+            <column name="value" valueNumeric="0"/>
             <column name="enabled" valueNumeric="0"/>
             <column name="is_trap_door" valueNumeric="0"/>
         </insert>

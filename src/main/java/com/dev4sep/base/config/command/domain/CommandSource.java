@@ -77,6 +77,9 @@ public class CommandSource extends AbstractPersistableCustom {
     @Column(name = "command_as_json")
     private String commandAsJson;
 
+    protected CommandSource() {
+    }
+
     private CommandSource(final String actionName,
                           final String entityName,
                           final String href,
@@ -112,5 +115,21 @@ public class CommandSource extends AbstractPersistableCustom {
         );
         commandSource.officeId = request.getOfficeId();
         return commandSource;
+    }
+
+    public void markAsChecked(final User checker) {
+        this.checker = checker;
+        this.checkedDate = DateUtils.getAuditOffsetDateTime();
+        this.status = CommandProcessingType.PROCESSED.getValue();
+    }
+
+    public void markAsAwaitingApproval() {
+        this.status = CommandProcessingType.AWAITING_APPROVAL.getValue();
+    }
+
+    public void updateForAudit(final CommandProcessing result) {
+        this.officeId = result.getOfficeId();
+        this.resourceId = result.getResourceId();
+        this.subResourceId = result.getSubResourceId();
     }
 }

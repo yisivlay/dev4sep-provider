@@ -21,6 +21,7 @@ import com.dev4sep.base.config.security.domain.PlatformUser;
 import com.dev4sep.base.config.security.exception.NoAuthorizationException;
 import com.dev4sep.base.organisation.office.domain.Office;
 import jakarta.persistence.*;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -201,5 +202,17 @@ public class User extends AbstractPersistableCustom implements PlatformUser {
     @Override
     public boolean isEnabled() {
         return this.enabled;
+    }
+
+    public boolean isCheckerSuperUser() {
+        return hasPermissionTo("CHECKER_SUPER_USER");
+    }
+
+    public String getDisplayName() {
+        String firstName = StringUtils.isNotBlank(this.firstname) ? this.firstname : "";
+        if (StringUtils.isNotBlank(this.lastname)) {
+            return firstName + " " + this.lastname;
+        }
+        return firstName;
     }
 }

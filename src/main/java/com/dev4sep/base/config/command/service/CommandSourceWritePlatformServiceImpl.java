@@ -36,6 +36,7 @@ public class CommandSourceWritePlatformServiceImpl implements CommandSourceWrite
     private final PlatformSecurityContext context;
     private final FromJsonHelper fromApiJsonHelper;
     private final CommandSourceRepository commandSourceRepository;
+    private final CommandProcessingService commandProcessingService;
 
     @Override
     public CommandProcessing logCommandSource(CommandWrapper request) {
@@ -43,7 +44,7 @@ public class CommandSourceWritePlatformServiceImpl implements CommandSourceWrite
         // check if is update of own account details
         if (request.isUpdateOfOwnUserDetails(this.context.authenticatedUser(request).getId())) {
             // then allow this operation to proceed.
-            // maker checker doesnt mean anything here.
+            // maker checker doesn't mean anything here.
             isApprovedByChecker = true; // set to true in case permissions have
             // been maker-checker enabled by
             // accident.
@@ -66,6 +67,6 @@ public class CommandSourceWritePlatformServiceImpl implements CommandSourceWrite
                 .entityName(request.getEntityName())
                 .build();
 
-        return this.;
+        return this.commandProcessingService.executeCommand(request, command, isApprovedByChecker);
     }
 }

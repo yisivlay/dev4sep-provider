@@ -13,16 +13,21 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.domain;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationRepository extends JpaRepository<Configuration, Long>, JpaSpecificationExecutor<Configuration> {
+@Getter
+@AllArgsConstructor
+public enum ActionContext {
 
-    Configuration findOneByName(String name);
+    DEFAULT(0, "Default context");
+
+    private final int order;
+    private final String description;
 
 }

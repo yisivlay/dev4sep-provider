@@ -15,6 +15,8 @@
  */
 package com.dev4sep.base.config.serialization;
 
+import com.dev4sep.base.config.exception.InvalidJsonException;
+import com.dev4sep.base.config.exception.UnsupportedParameterException;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -22,6 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Type;
+import java.time.LocalDate;
+import java.util.*;
 
 /**
  * @author YISivlay
@@ -46,6 +52,40 @@ public class FromJsonHelper {
             parsedElement = JsonParser.parseString(json);
         }
         return parsedElement;
+    }
+
+    public Long extractLongNamed(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.extractLongNamed(parameterName, element, new HashSet<>());
+    }
+
+    public String extractStringNamed(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.extractStringNamed(parameterName, element, new HashSet<>());
+    }
+
+    public boolean parameterExists(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.parameterExists(parameterName, element);
+    }
+
+    public void checkForUnsupportedParameters(final Type typeOfMap, final String json, final Collection<String> supportedParams) {
+        if (StringUtils.isBlank(json)) {
+            throw new InvalidJsonException();
+        }
+
+        final Map<String, Object> requestMap = this.gsonConverter.fromJson(json, typeOfMap);
+        final List<String> unsupportedParameterList = new ArrayList<>();
+        for (final var providedParameter : requestMap.keySet()) {
+            if (!supportedParams.contains(providedParameter)) {
+                unsupportedParameterList.add(providedParameter);
+            }
+        }
+
+        if (!unsupportedParameterList.isEmpty()) {
+            throw new UnsupportedParameterException(unsupportedParameterList);
+        }
+    }
+
+    public LocalDate extractLocalDateNamed(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.extractLocalDateNamed(parameterName, element, new HashSet<>());
     }
 
 }
