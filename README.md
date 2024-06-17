@@ -13,9 +13,10 @@ Project on repository: https://github.com/yisivlay/dev4sep-provider.git
 >git clone https://github.com/yisivlay/dev4sep-provider.git
 
 Run the following commands:
-1. `./gradlew createDB -PdbName=dev4sep-tenants`
-2. `./gradlew createDB -PdbName=dev4sep-default`
-3. `./gradlew bootRun`
+1. `docker compose up`
+2. `./gradlew createDB -PdbName=dev4sep-tenants`
+3. `./gradlew createDB -PdbName=dev4sep-default`
+4. `./gradlew bootRun`
 
 <br> Manage Apache2 Licenses 
 ============================
@@ -25,6 +26,6 @@ Run the following commands:
 * Check Apache License
 2. `./gradlew license`
 * Download Apache License
-3. `./gradlew license`
+3. `./gradlew downloadLicenses`
 * Generate License Report
 4. `./gradlew generateLicenseReport`
