@@ -18,6 +18,7 @@ package com.dev4sep.base.organisation.office.api;
 import com.dev4sep.base.config.api.ApiRequestParameterHelper;
 import com.dev4sep.base.config.command.domain.CommandProcessing;
 import com.dev4sep.base.config.command.domain.CommandWrapper;
+import com.dev4sep.base.config.command.service.CommandSourceWritePlatformService;
 import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.serialization.ApiRequestJsonSerializationSettings;
@@ -45,6 +46,7 @@ public class OfficesApiResource {
 
     private final PlatformSecurityContext context;
     private final ApiRequestParameterHelper apiRequestParameterHelper;
+    private final CommandSourceWritePlatformService commandSourceWritePlatformService;
     private final DefaultToApiJsonSerializer<OfficeData> toApiJsonSerializer;
     private final OfficeReadPlatformService officeReadPlatformService;
 
@@ -88,8 +90,8 @@ public class OfficesApiResource {
     public String createOffice(final String requestBody) {
 
         final CommandWrapper request = new OfficeCommandWrapperBuilder().create().json(requestBody).build();
-        final CommandProcessing result =
-        return null;
+        final CommandProcessing result = this.commandSourceWritePlatformService.logCommandSource(request);
+        return this.toApiJsonSerializer.serialize(result);
 
     }
 }

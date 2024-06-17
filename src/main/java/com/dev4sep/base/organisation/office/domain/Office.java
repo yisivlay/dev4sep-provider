@@ -16,15 +16,16 @@
 package com.dev4sep.base.organisation.office.domain;
 
 import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
-import com.dev4sep.base.config.domain.ExternalId;
+import com.dev4sep.base.config.command.domain.JsonCommand;
+import com.dev4sep.base.organisation.office.api.OfficesApiConstants;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -39,7 +40,7 @@ import java.util.List;
 })
 public class Office extends AbstractPersistableCustom implements Serializable {
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private List<Office> children = new ArrayList<>();
 
@@ -53,9 +54,8 @@ public class Office extends AbstractPersistableCustom implements Serializable {
     @Column(name = "hierarchy", length = 100)
     private String hierarchy;
 
-    @Temporal(TemporalType.DATE)
     @Column(name = "opening_date", nullable = false)
-    private Date openingDate;
+    private LocalDate openingDate;
 
     @Column(name = "external_id", length = 100, unique = true)
     private String externalId;
@@ -69,7 +69,7 @@ public class Office extends AbstractPersistableCustom implements Serializable {
 
     private Office(final Office parent,
                    final String name,
-                   final Date openingDate,
+                   final LocalDate openingDate,
                    final String externalId) {
         this.parent = parent;
         this.openingDate = openingDate;
@@ -86,9 +86,18 @@ public class Office extends AbstractPersistableCustom implements Serializable {
     }
 
     public static Office headOffice(final String name,
-                                    final Date openingDate,
+                                    final LocalDate openingDate,
                                     final String externalId) {
         return new Office(null, name, openingDate, externalId);
+    }
+
+    public static Office fromJson(Office parent, JsonCommand command) {
+
+        final String name = command.stringValueOfParameterNamed(OfficesApiConstants.name);
+        final LocalDate openingDate = command.localDateValueOfParameterNamed(OfficesApiConstants.openingDate);
+        final String externalId = command.stringValueOfParameterNamed(OfficesApiConstants.externalId);
+
+        return new Office(parent, name, openingDate, externalId);
     }
 
     private void addChild(final Office office) {
@@ -104,7 +113,41 @@ public class Office extends AbstractPersistableCustom implements Serializable {
         }
     }
 
+    public boolean identifiedBy(final Long id) {
+        return getId().equals(id);
+    }
+
+    private boolean hasAnOfficeInHierarchyWithId(final Long officeId) {
+
+        boolean match = false;
+
+        if (identifiedBy(officeId)) {
+            match = true;
+        }
+
+        if (!match) {
+            for (final Office child : this.children) {
+                final boolean result = child.hasAnOfficeInHierarchyWithId(officeId);
+
+                if (result) {
+                    match = true;
+                    break;
+                }
+            }
+        }
+
+        return match;
+    }
+
+    public boolean doesNotHaveAnOfficeInHierarchyWithId(final Long officeId) {
+        return !hasAnOfficeInHierarchyWithId(officeId);
+    }
+
     private String hierarchyOf(final Long id) {
         return this.hierarchy + id.toString() + ".";
+    }
+
+    public void loadLazyCollections() {
+        this.children.size();
     }
 }

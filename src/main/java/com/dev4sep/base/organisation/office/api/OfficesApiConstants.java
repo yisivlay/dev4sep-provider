@@ -25,17 +25,21 @@ import java.util.Set;
 public class OfficesApiConstants {
 
     public static final String PERMISSIONS = "OFFICE";
+    public static final String RESOURCE = "office";
     public static final String PATH = "/offices";
 
-    private static final String id = "id";
-    private static final String name = "name";
-    private static final String nameDecorated = "nameDecorated";
-    private static final String externalId = "externalId";
-    private static final String openingDate = "openingDate";
-    private static final String hierarchy = "hierarchy";
-    private static final String parentId = "parentId";
-    private static final String parentName = "parentName";
-    private static final String allowedParents = "allowedParents";
+    public static final String id = "id";
+    public static final String name = "name";
+    public static final String nameDecorated = "nameDecorated";
+    public static final String externalId = "externalId";
+    public static final String openingDate = "openingDate";
+    public static final String hierarchy = "hierarchy";
+    public static final String parentId = "parentId";
+    public static final String parentName = "parentName";
+    public static final String allowedParents = "allowedParents";
+
+    public static final String locale = "locale";
+    public static final String dateFormat = "dateFormat";
 
     public static final Set<String> RESPONSE_PARAMETERS = new HashSet<>(Arrays.asList(
             id,
@@ -54,6 +58,8 @@ public class OfficesApiConstants {
             externalId,
             openingDate,
             parentId,
-            allowedParents
+            allowedParents,
+            locale,
+            dateFormat
     ));
 }

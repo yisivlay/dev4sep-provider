@@ -18,6 +18,7 @@ package com.dev4sep.base.organisation.office.domain;
 import com.dev4sep.base.organisation.office.exception.OfficeNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author YISivlay
@@ -34,5 +35,21 @@ public class OfficeRepositoryWrapper {
 
     public Office findOneWithNotFoundDetection(final Long id) {
         return this.repository.findById(id).orElseThrow(() -> new OfficeNotFoundException(id));
+    }
+
+    @Transactional(readOnly = true)
+    public Office findOfficeHierarchy(final Long id) {
+        final Office office = this.repository.findById(id).orElseThrow(() -> new OfficeNotFoundException(id));
+        office.loadLazyCollections();
+        return office;
+
+    }
+
+    public Office saveAndFlush(final Office entity) {
+        return this.repository.saveAndFlush(entity);
+    }
+
+    public Office save(final Office office) {
+        return this.repository.save(office);
     }
 }
