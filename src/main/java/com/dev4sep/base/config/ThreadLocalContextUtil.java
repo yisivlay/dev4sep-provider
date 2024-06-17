@@ -16,6 +16,8 @@
 package com.dev4sep.base.config;
 
 import com.dev4sep.base.config.datasource.database.domain.PlatformTenant;
+import com.dev4sep.base.config.domain.ActionContext;
+import com.dev4sep.base.config.domain.Context;
 
 /**
  * @author YISivlay
@@ -26,6 +28,7 @@ public final class ThreadLocalContextUtil {
     private static final ThreadLocal<String> contextHolder = new ThreadLocal<>();
     private static final ThreadLocal<PlatformTenant> tenantContext = new ThreadLocal<>();
     private static final ThreadLocal<String> authTokenContext = new ThreadLocal<>();
+    private static final ThreadLocal<ActionContext> actionContext = new ThreadLocal<>();
 
     public static String getDataSourceContext() {
         return contextHolder.get();
@@ -46,5 +49,17 @@ public final class ThreadLocalContextUtil {
 
     public static void setAuthToken(final String authToken) {
         authTokenContext.set(authToken);
+    }
+
+    public static String getAuthToken() {
+        return authTokenContext.get();
+    }
+
+    public static ActionContext getActionContext() {
+        return actionContext.get() == null ? ActionContext.DEFAULT : actionContext.get();
+    }
+
+    public static Context getContext() {
+        return new Context(getDataSourceContext(), getTenant(), getAuthToken(), getActionContext());
     }
 }

@@ -16,6 +16,7 @@
 package com.dev4sep.base.config.security.service;
 
 import com.dev4sep.base.adminstration.user.domain.User;
+import com.dev4sep.base.config.command.domain.CommandWrapper;
 
 /**
  * @author YISivlay
@@ -23,6 +24,8 @@ import com.dev4sep.base.adminstration.user.domain.User;
 public interface PlatformSecurityContext extends PlatformUserRightsContext {
 
     User authenticatedUser();
+
+    User authenticatedUser(CommandWrapper request);
 
     boolean doesPasswordHasToBeRenewed(User currentUser);
 

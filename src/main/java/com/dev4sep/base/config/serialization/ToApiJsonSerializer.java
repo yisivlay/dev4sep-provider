@@ -27,6 +27,8 @@ public interface ToApiJsonSerializer<T> {
 
     String serialize(Object object);
 
+    String serializeResult(Object object);
+
     String serialize(ApiRequestJsonSerializationSettings settings, T single, Set<String> supportedResponseParameters);
 
     String serialize(ApiRequestJsonSerializationSettings settings, Collection<T> collection, Set<String> supportedResponseParameters);

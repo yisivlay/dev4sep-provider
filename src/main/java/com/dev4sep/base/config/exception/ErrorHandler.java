@@ -15,6 +15,8 @@
  */
 package com.dev4sep.base.config.exception;
 
+import com.dev4sep.base.config.command.domain.Header;
+import com.dev4sep.base.config.command.exception.ErrorInfo;
 import com.dev4sep.base.config.data.ApiParameterError;
 import com.dev4sep.base.config.exception.mapper.CustomExceptionMapper;
 import com.dev4sep.base.config.exception.mapper.DefaultExceptionMapper;
@@ -43,6 +45,7 @@ import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.springframework.core.ResolvableType.forClassWithGenerics;
 
@@ -70,9 +73,9 @@ public final class ErrorHandler {
 
     public static RuntimeException getMappable(@NotNull Throwable t, String msgCode, String defaultMsg, String param,
                                                final Object... defaultMsgArgs) {
-        String msg = defaultMsg == null ? t.getMessage() : defaultMsg;
-        String codePfx = "error.msg" + (param == null ? "" : ("." + param));
-        Object[] args = defaultMsgArgs == null ? new Object[]{t} : defaultMsgArgs;
+        var msg = defaultMsg == null ? t.getMessage() : defaultMsg;
+        var codePfx = "error.msg" + (param == null ? "" : ("." + param));
+        var args = defaultMsgArgs == null ? new Object[]{t} : defaultMsgArgs;
 
         Throwable cause;
         if ((cause = PessimisticLockingFailureCode.match(t)) != null) {
@@ -133,9 +136,9 @@ public final class ErrorHandler {
     public <T extends RuntimeException> ExceptionMapper<T> findMostSpecificExceptionHandler(T exception) {
         Class<?> clazz = exception.getClass();
         do {
-            Set<String> exceptionMappers = createSet(ctx.getBeanNamesForType(forClassWithGenerics(ExceptionMapper.class, clazz)));
-            Set<String> fineractErrorMappers = createSet(ctx.getBeanNamesForType(CustomExceptionMapper.class));
-            SetUtils.SetView<String> intersection = SetUtils.intersection(exceptionMappers, fineractErrorMappers);
+            var exceptionMappers = createSet(ctx.getBeanNamesForType(forClassWithGenerics(ExceptionMapper.class, clazz)));
+            var fineractErrorMappers = createSet(ctx.getBeanNamesForType(CustomExceptionMapper.class));
+            var intersection = SetUtils.intersection(exceptionMappers, fineractErrorMappers);
             if (!intersection.isEmpty()) {
                 // noinspection unchecked
                 return (ExceptionMapper<T>) ctx.getBean(intersection.iterator().next());
@@ -176,9 +179,9 @@ public final class ErrorHandler {
 
         @Nullable
         private static String getSqlClassCode(SQLException ex) {
-            String sqlState = ex.getSQLState();
+            var sqlState = ex.getSQLState();
             if (sqlState == null) {
-                SQLException nestedEx = ex.getNextException();
+                var nestedEx = ex.getNextException();
                 if (nestedEx != null) {
                     sqlState = nestedEx.getSQLState();
                 }
@@ -189,5 +192,22 @@ public final class ErrorHandler {
         private boolean matches(SQLException ex) {
             return code.equals(getSqlClassCode(ex)) && (msg == null || ex.getMessage().contains(msg));
         }
+    }
+
+    /**
+     * Returns an object of ErrorInfo type containing the information regarding the raised error.
+     *
+     * @param exception
+     * @return ErrorInfo
+     */
+    public ErrorInfo handle(@NotNull RuntimeException exception) {
+        ExceptionMapper<RuntimeException> exceptionMapper = findMostSpecificExceptionHandler(exception);
+        var response = exceptionMapper.toResponse(exception);
+        var headers = response.getHeaders();
+        var batchHeaders = headers == null ? null
+                : headers.keySet().stream().map(e -> new Header(e, response.getHeaderString(e))).collect(Collectors.toSet());
+        var errorCode = exceptionMapper instanceof CustomExceptionMapper ? ((CustomExceptionMapper) exceptionMapper).errorCode() : null;
+        var msg = response.getEntity();
+        return new ErrorInfo(response.getStatus(), errorCode, msg instanceof String ? (String) msg : JSON_HELPER.toJson(msg), batchHeaders);
     }
 }

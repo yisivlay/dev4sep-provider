@@ -55,4 +55,8 @@ public class Permission extends AbstractPersistableCustom implements Serializabl
     public boolean hasCode(final String checkCode) {
         return this.code.equalsIgnoreCase(checkCode);
     }
+
+    public boolean hasMakerCheckerEnabled() {
+        return this.canMakerChecker;
+    }
 }

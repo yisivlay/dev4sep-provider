@@ -17,9 +17,15 @@ package com.dev4sep.base.adminstration.permission.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author YISivlay
  */
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
+
+    @Query("SELECT p FROM Permission p WHERE LOWER(TRIM(BOTH FROM p.code)) = LOWER(TRIM(BOTH FROM ?1))")
+    Permission findOneByCode(@Param("code") String code);
+
 }

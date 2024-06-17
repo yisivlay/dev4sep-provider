@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+       Copyright 2024 DEV4Sep
+
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+
+           http://www.apache.org/licenses/LICENSE-2.0
+
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+
+-->
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    <changeSet id="1" author="dev4sep">
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="5"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="READ_PERMISSION"/>
+            <column name="entity_name" value="PERMISSION"/>
+            <column name="action_name" value="READ"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="6"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="UPDATE_PERMISSION"/>
+            <column name="entity_name" value="PERMISSION"/>
+            <column name="action_name" value="UPDATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="7"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="UPDATE_PERMISSION_CHECKER"/>
+            <column name="entity_name" value="PERMISSION"/>
+            <column name="action_name" value="UPDATE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="8"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="PERMISSIONS_ROLE"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="PERMISSIONS"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="9"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="CREATE_ROLE"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="CREATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="10"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="CREATE_ROLE_CHECKER"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="CREATE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="11"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="READ_ROLE"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="READ"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="12"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="UPDATE_ROLE"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="UPDATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="13"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="UPDATE_ROLE_CHECKER"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="UPDATE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="14"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="DELETE_ROLE"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="DELETE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="15"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="DELETE_ROLE_CHECKER"/>
+            <column name="entity_name" value="ROLE"/>
+            <column name="action_name" value="DELETE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="16"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="CREATE_USER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="CREATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="17"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="CREATE_USER_CHECKER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="CREATE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="18"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="READ_USER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="READ"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="19"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="UPDATE_USER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="UPDATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="20"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="UPDATE_USER_CHECKER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="UPDATE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="21"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="DELETE_USER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="DELETE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="22"/>
+            <column name="grouping" value="authorisation"/>
+            <column name="code" value="DELETE_USER_CHECKER"/>
+            <column name="entity_name" value="USER"/>
+            <column name="action_name" value="DELETE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="23"/>
+            <column name="grouping" value="configuration"/>
+            <column name="code" value="READ_CONFIGURATION"/>
+            <column name="entity_name" value="CONFIGURATION"/>
+            <column name="action_name" value="READ"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="24"/>
+            <column name="grouping" value="configuration"/>
+            <column name="code" value="UPDATE_CONFIGURATION"/>
+            <column name="entity_name" value="CONFIGURATION"/>
+            <column name="action_name" value="UPDATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="25"/>
+            <column name="grouping" value="configuration"/>
+            <column name="code" value="UPDATE_CONFIGURATION_CHECKER"/>
+            <column name="entity_name" value="CONFIGURATION"/>
+            <column name="action_name" value="UPDATE_CHECKER"/>
+            <column name="can_maker_checker" valueNumeric="1"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="26"/>
+            <column name="grouping" value="organisation"/>
+            <column name="code" value="CREATE_OFFICE"/>
+            <column name="entity_name" value="OFFICE"/>
+            <column name="action_name" value="CREATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="27"/>
+            <column name="grouping" value="organisation"/>
+            <column name="code" value="UPDATE_OFFICE"/>
+            <column name="entity_name" value="OFFICE"/>
+            <column name="action_name" value="UPDATE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="28"/>
+            <column name="grouping" value="organisation"/>
+            <column name="code" value="DELETE_OFFICE"/>
+            <column name="entity_name" value="OFFICE"/>
+            <column name="action_name" value="DELETE"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+        <insert tableName="tbl_permission">
+            <column name="id" valueNumeric="29"/>
+            <column name="grouping" value="organisation"/>
+            <column name="code" value="READ_OFFICE"/>
+            <column name="entity_name" value="OFFICE"/>
+            <column name="action_name" value="READ"/>
+            <column name="can_maker_checker" valueNumeric="0"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

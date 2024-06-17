@@ -16,12 +16,15 @@
 package com.dev4sep.base.organisation.office.api;
 
 import com.dev4sep.base.config.api.ApiRequestParameterHelper;
+import com.dev4sep.base.config.command.domain.CommandProcessing;
+import com.dev4sep.base.config.command.domain.CommandWrapper;
 import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.serialization.ApiRequestJsonSerializationSettings;
 import com.dev4sep.base.config.serialization.DefaultToApiJsonSerializer;
 import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.organisation.office.data.OfficeData;
+import com.dev4sep.base.organisation.office.handler.OfficeCommandWrapperBuilder;
 import com.dev4sep.base.organisation.office.service.OfficeReadPlatformService;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -77,5 +80,16 @@ public class OfficesApiResource {
 
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, office, OfficesApiConstants.RESPONSE_PARAMETERS);
+    }
+
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String createOffice(final String requestBody) {
+
+        final CommandWrapper request = new OfficeCommandWrapperBuilder().create().json(requestBody).build();
+        final CommandProcessing result =
+        return null;
+
     }
 }

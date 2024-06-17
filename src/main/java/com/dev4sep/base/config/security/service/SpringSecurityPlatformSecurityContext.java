@@ -17,15 +17,23 @@ package com.dev4sep.base.config.security.service;
 
 import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.adminstration.user.exception.UnAuthenticatedUserException;
+import com.dev4sep.base.adminstration.user.handler.UserCommandWrapperBuilder;
+import com.dev4sep.base.config.command.domain.CommandWrapper;
 import com.dev4sep.base.config.security.exception.ResetPasswordException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author YISivlay
  */
 @Service
 public class SpringSecurityPlatformSecurityContext implements PlatformSecurityContext {
+
+    protected static final List<CommandWrapper> EXEMPT_FROM_PASSWORD_RESET_CHECK = new ArrayList<>(
+            List.of(new UserCommandWrapperBuilder().update(null).build()));
 
     @Override
     public User authenticatedUser() {
@@ -47,9 +55,41 @@ public class SpringSecurityPlatformSecurityContext implements PlatformSecurityCo
     }
 
     @Override
+    public User authenticatedUser(CommandWrapper request) {
+        User login = null;
+        final var context = SecurityContextHolder.getContext();
+        if (context != null) {
+            final var auth = context.getAuthentication();
+            if (auth != null) {
+                login = (User) auth.getPrincipal();
+            }
+        }
+
+        if (login == null) {
+            throw new UnAuthenticatedUserException();
+        }
+
+        if (this.shouldCheckForPasswordForceReset(request) && this.doesPasswordHasToBeRenewed(login)) {
+            throw new ResetPasswordException(login.getId());
+        }
+
+        return login;
+    }
+
+    @Override
     public boolean doesPasswordHasToBeRenewed(User currentUser) {
         //TODO We will add configuration handler here from database for forcing user to change password
         return false;
+    }
+
+    private boolean shouldCheckForPasswordForceReset(CommandWrapper request) {
+        for (CommandWrapper commandWrapper : EXEMPT_FROM_PASSWORD_RESET_CHECK) {
+            if (commandWrapper.getActionName().equals(request.getActionName())
+                    && commandWrapper.getEntityName().equals(request.getEntityName())) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override

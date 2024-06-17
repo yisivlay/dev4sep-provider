@@ -26,4 +26,7 @@
     <include file="versions/0005_create_table_role_permission.xml" relativeToChangelogFile="true"/>
     <include file="versions/0006_create_table_user.xml" relativeToChangelogFile="true"/>
     <include file="versions/0007_create_table_user_role.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0008_create_table_command_source.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0009_create_table_configuration.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0010_insert_core_permission.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
