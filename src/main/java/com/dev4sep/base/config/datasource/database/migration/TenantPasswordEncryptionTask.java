@@ -15,8 +15,8 @@
  */
 package com.dev4sep.base.config.datasource.database.migration;
 
+import com.dev4sep.base.config.ApplicationContextConfig;
 import com.dev4sep.base.config.datasource.database.DatabasePasswordEncryptor;
-import com.dev4sep.base.config.providers.ApplicationContextProvider;
 import liquibase.change.custom.CustomTaskChange;
 import liquibase.database.Database;
 import liquibase.database.jvm.JdbcConnection;
@@ -42,8 +42,7 @@ public class TenantPasswordEncryptionTask implements CustomTaskChange {
 
     @Override
     public void execute(Database database) throws CustomChangeException {
-        var context = ApplicationContextProvider.getApplicationContext();
-        var databasePasswordEncryptor = context.getBean(DatabasePasswordEncryptor.class);
+        var databasePasswordEncryptor = ApplicationContextConfig.getBean("databasePasswordEncryptor", DatabasePasswordEncryptor.class);
 
         var dbConn = (JdbcConnection) database.getConnection(); // autocommit is false
         try (var selectStatement = dbConn.createStatement(); var updateStatement = dbConn.createStatement()) {
