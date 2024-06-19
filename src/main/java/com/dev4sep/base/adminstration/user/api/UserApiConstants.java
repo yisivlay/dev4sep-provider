@@ -15,6 +15,10 @@
  */
 package com.dev4sep.base.adminstration.user.api;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * @author YISivlay
  */
@@ -22,5 +26,28 @@ public class UserApiConstants {
 
     public static final String PERMISSIONS = "USER";
     public static final String PATH = "/users";
+
+    public static String id = "id";
+    public static String officeId = "officeId";
+    public static String officeName = "officeName";
+    public static String username = "username";
+    public static String firstname = "firstname";
+    public static String lastname = "lastname";
+    public static String email = "email";
+    public static String allowedOffices = "allowedOffices";
+    public static String availableRoles = "availableRoles";
+    public static String selectedRoles = "selectedRoles";
+
+    public static final Set<String> RESPONSE_PARAMETERS = new HashSet<>(Arrays.asList(
+            id,
+            officeName,
+            username,
+            firstname,
+            lastname,
+            email,
+            allowedOffices,
+            availableRoles,
+            selectedRoles
+    ));
 
 }

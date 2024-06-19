@@ -13,23 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.role.data;
+package com.dev4sep.base.adminstration.user.service;
 
-import lombok.Builder;
-import lombok.Data;
-
-import java.io.Serializable;
+import com.dev4sep.base.adminstration.user.data.UserData;
+import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.service.Page;
 
 /**
  * @author YISivlay
  */
-@Data
-@Builder
-public class RoleData implements Serializable {
-
-    private final Long id;
-    private final String name;
-    private final String description;
-    private final Boolean disabled;
-
+public interface UserReadPlatformService {
+    Page<UserData> getAllUsers(RequestParameters requestParameters);
 }

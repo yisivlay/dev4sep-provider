@@ -13,23 +13,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.role.data;
+package com.dev4sep.base.adminstration.role.exception;
 
-import lombok.Builder;
-import lombok.Data;
-
-import java.io.Serializable;
+import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 /**
  * @author YISivlay
  */
-@Data
-@Builder
-public class RoleData implements Serializable {
+public class RoleNotFoundException extends AbstractPlatformResourceNotFoundException {
 
-    private final Long id;
-    private final String name;
-    private final String description;
-    private final Boolean disabled;
+    public RoleNotFoundException(Long id, EmptyResultDataAccessException e) {
+        super("error.msg.role.id.invalid", "Role does not exist.", id, e);
+    }
 
 }

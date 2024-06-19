@@ -162,7 +162,8 @@ license {
 			"**/keystore.p12",
 			"**/keystore.jks",
 			"**/*Tests.java",
-			"**/banner.txt"
+			"**/banner.txt",
+			"gradlew*"
 	])
 	licenseReport {
 		outputDir = "$projectDir/licenses"

@@ -53,7 +53,12 @@ public class Role extends AbstractPersistableCustom implements Serializable {
     }
 
     public RoleData toData() {
-        return new RoleData(getId(), this.name, this.description, this.disabled);
+        return RoleData.builder()
+                .id(getId())
+                .name(this.name)
+                .description(this.description)
+                .disabled(this.disabled)
+                .build();
     }
 
     public boolean hasPermissionTo(final String permissionCode) {
