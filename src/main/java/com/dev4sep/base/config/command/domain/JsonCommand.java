@@ -60,4 +60,8 @@ public class JsonCommand {
     public String stringValueOfParameterNamedAllowingNull(final String parameterName) {
         return this.fromApiJsonHelper.extractStringNamed(parameterName, this.parsedCommand);
     }
+
+    public JsonElement parsedJson() {
+        return this.parsedCommand;
+    }
 }

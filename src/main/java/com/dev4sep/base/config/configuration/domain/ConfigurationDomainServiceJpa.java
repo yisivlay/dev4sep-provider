@@ -53,6 +53,12 @@ public class ConfigurationDomainServiceJpa implements ConfigurationDomainService
         return false;
     }
 
+    @Override
+    public boolean isExternalIdAutoGenerationEnabled() {
+        final ConfigurationData property = getConfigurationData("enable-auto-generated-external-id");
+        return property.isEnabled();
+    }
+
     @NotNull
     private ConfigurationData getConfigurationData(final String name) {
         return configurationRepositoryWrapper.findOneByNameWithNotFoundDetection(name).toData();
