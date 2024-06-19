@@ -85,17 +85,11 @@ public class Office extends AbstractPersistableCustom implements Serializable {
         this.externalId = externalId;
     }
 
-    public static Office headOffice(final String name,
-                                    final LocalDate openingDate,
-                                    final String externalId) {
-        return new Office(null, name, openingDate, externalId);
-    }
-
     public static Office fromJson(Office parent, JsonCommand command) {
 
-        final String name = command.stringValueOfParameterNamed(OfficesApiConstants.name);
-        final LocalDate openingDate = command.localDateValueOfParameterNamed(OfficesApiConstants.openingDate);
-        final String externalId = command.stringValueOfParameterNamed(OfficesApiConstants.externalId);
+        final var name = command.stringValueOfParameterNamed(OfficesApiConstants.name);
+        final var openingDate = command.localDateValueOfParameterNamed(OfficesApiConstants.openingDate);
+        final var externalId = command.stringValueOfParameterNamedAllowingNull(OfficesApiConstants.externalId);
 
         return new Office(parent, name, openingDate, externalId);
     }
@@ -113,29 +107,33 @@ public class Office extends AbstractPersistableCustom implements Serializable {
         }
     }
 
+    public void generateExternalId() {
+
+        if (this.parent != null) {
+            this.externalId = this.parent.externalIdOf(getId());
+        } else {
+            this.externalId = String.valueOf(getId());
+        }
+    }
+
     public boolean identifiedBy(final Long id) {
         return getId().equals(id);
     }
 
     private boolean hasAnOfficeInHierarchyWithId(final Long officeId) {
-
         boolean match = false;
-
         if (identifiedBy(officeId)) {
             match = true;
         }
-
         if (!match) {
             for (final Office child : this.children) {
-                final boolean result = child.hasAnOfficeInHierarchyWithId(officeId);
-
+                final var result = child.hasAnOfficeInHierarchyWithId(officeId);
                 if (result) {
                     match = true;
                     break;
                 }
             }
         }
-
         return match;
     }
 
@@ -145,6 +143,10 @@ public class Office extends AbstractPersistableCustom implements Serializable {
 
     private String hierarchyOf(final Long id) {
         return this.hierarchy + id.toString() + ".";
+    }
+
+    private String externalIdOf(final Long id) {
+        return this.externalId + "," + id.toString() + ",";
     }
 
     public void loadLazyCollections() {

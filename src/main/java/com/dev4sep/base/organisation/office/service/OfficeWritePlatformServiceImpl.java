@@ -49,17 +49,19 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
     @Override
     public CommandProcessing create(JsonCommand command) {
         try {
-            User login = this.context.authenticatedUser();
+            var login = this.context.authenticatedUser();
             this.validator.validateForCreate(command.getJson());
 
-            final Long parentId = command.longValueOfParameterNamed(OfficesApiConstants.parentId);
-            final Office parent = validateUserPrivilegeOnOfficeAndRetrieve(login, parentId);
+            final var parentId = command.longValueOfParameterNamed(OfficesApiConstants.parentId);
+            final var parent = validateUserPrivilegeOnOfficeAndRetrieve(login, parentId);
 
-            final Office office = Office.fromJson(parent, command);
+            final var office = Office.fromJson(parent, command);
 
             this.officeRepositoryWrapper.saveAndFlush(office);
 
             office.generateHierarchy();
+            office.generateExternalId();
+
             this.officeRepositoryWrapper.save(office);
 
             return new CommandProcessingBuilder()
@@ -79,13 +81,13 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
 
     private Office validateUserPrivilegeOnOfficeAndRetrieve(final User login, final Long officeId) {
 
-        final Long userOfficeId = login.getOffice().getId();
-        final Office userOffice = this.officeRepositoryWrapper.findOfficeHierarchy(userOfficeId);
+        final var userOfficeId = login.getOffice().getId();
+        final var userOffice = this.officeRepositoryWrapper.findOfficeHierarchy(userOfficeId);
         if (userOffice.doesNotHaveAnOfficeInHierarchyWithId(officeId)) {
             throw new NoAuthorizationException("User does not have sufficient privileges to act on the provided office.");
         }
 
-        Office officeToReturn = userOffice;
+        var officeToReturn = userOffice;
         if (!userOffice.identifiedBy(officeId)) {
             officeToReturn = this.officeRepositoryWrapper.findOfficeHierarchy(officeId);
         }
@@ -95,7 +97,7 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
 
     private void handleOfficeDataIntegrityIssues(final JsonCommand command, final Throwable realCause, final Exception dve) {
         if (realCause.getMessage().contains("external_id")) {
-            final String externalId = command.stringValueOfParameterNamed(OfficesApiConstants.externalId);
+            final var externalId = command.stringValueOfParameterNamed(OfficesApiConstants.externalId);
             throw new PlatformDataIntegrityException(
                     "error.msg.office.duplicate.externalId",
                     "Office already exists.",
@@ -103,7 +105,7 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
                     externalId
             );
         } else if (realCause.getMessage().contains("name")) {
-            final String name = command.stringValueOfParameterNamed(OfficesApiConstants.name);
+            final var name = command.stringValueOfParameterNamed(OfficesApiConstants.name);
             throw new PlatformDataIntegrityException(
                     "error.msg.office.duplicate.name",
                     "Office already exists",

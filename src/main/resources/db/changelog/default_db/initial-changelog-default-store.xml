@@ -29,4 +29,5 @@
     <include file="versions/0008_create_table_command_source.xml" relativeToChangelogFile="true"/>
     <include file="versions/0009_create_table_configuration.xml" relativeToChangelogFile="true"/>
     <include file="versions/0010_insert_core_permission.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0011_insert_configuration_enable_auto_generate_external_id_.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>
