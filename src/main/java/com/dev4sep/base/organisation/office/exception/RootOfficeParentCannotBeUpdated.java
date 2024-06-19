@@ -13,18 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.organisation.office.service;
+package com.dev4sep.base.organisation.office.exception;
 
-import com.dev4sep.base.config.command.domain.CommandProcessing;
-import com.dev4sep.base.config.command.domain.JsonCommand;
+import com.dev4sep.base.config.exception.AbstractPlatformDomainRuleException;
 
 /**
  * @author YISivlay
  */
-public interface OfficeWritePlatformService {
-    CommandProcessing create(final JsonCommand command);
-
-    CommandProcessing update(final Long id, final JsonCommand command);
-
-    CommandProcessing delete(final Long id);
+public class RootOfficeParentCannotBeUpdated extends AbstractPlatformDomainRuleException {
+    public RootOfficeParentCannotBeUpdated() {
+        super("error.msg.office.cannot.update.parent.office.of.root.office", "The root office must not be set with a parent office.");
+    }
 }

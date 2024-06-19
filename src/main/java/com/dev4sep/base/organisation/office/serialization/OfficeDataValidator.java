@@ -21,14 +21,13 @@ import com.dev4sep.base.config.exception.InvalidJsonException;
 import com.dev4sep.base.config.exception.PlatformApiDataValidationException;
 import com.dev4sep.base.config.serialization.FromJsonHelper;
 import com.dev4sep.base.organisation.office.api.OfficesApiConstants;
-import com.google.gson.JsonElement;
 import com.google.gson.reflect.TypeToken;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Type;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,14 +36,10 @@ import java.util.Map;
  * @author YISivlay
  */
 @Component
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OfficeDataValidator {
 
     private final FromJsonHelper fromJsonHelper;
-
-    @Autowired
-    public OfficeDataValidator(FromJsonHelper fromJsonHelper) {
-        this.fromJsonHelper = fromJsonHelper;
-    }
 
     public void validateForCreate(final String json) {
         if (StringUtils.isBlank(json)) throw new InvalidJsonException();
@@ -55,20 +50,51 @@ public class OfficeDataValidator {
         this.fromJsonHelper.checkForUnsupportedParameters(typeOfMap, json, OfficesApiConstants.CREATE_UPDATE_PARAMETERS);
 
         final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
-        final DataValidatorBuilder validatorBuilder = new DataValidatorBuilder(dataValidationErrors).resource(OfficesApiConstants.RESOURCE);
+        final var validatorBuilder = new DataValidatorBuilder(dataValidationErrors).resource(OfficesApiConstants.RESOURCE);
 
-        final JsonElement element = this.fromJsonHelper.parse(json);
+        final var element = this.fromJsonHelper.parse(json);
 
-        final LocalDate openingDate = this.fromJsonHelper.extractLocalDateNamed(OfficesApiConstants.openingDate, element);
+        final var openingDate = this.fromJsonHelper.extractLocalDateNamed(OfficesApiConstants.openingDate, element);
         validatorBuilder.reset().parameter(OfficesApiConstants.openingDate).value(openingDate).notNull();
 
         if (this.fromJsonHelper.parameterExists(OfficesApiConstants.externalId, element)) {
-            final String externalId = this.fromJsonHelper.extractStringNamed(OfficesApiConstants.externalId, element);
+            final var externalId = this.fromJsonHelper.extractStringNamed(OfficesApiConstants.externalId, element);
             validatorBuilder.reset().parameter(OfficesApiConstants.externalId).value(externalId).notExceedingLengthOf(100);
         }
 
         if (this.fromJsonHelper.parameterExists(OfficesApiConstants.parentId, element)) {
-            final Long parentId = this.fromJsonHelper.extractLongNamed(OfficesApiConstants.parentId, element);
+            final var parentId = this.fromJsonHelper.extractLongNamed(OfficesApiConstants.parentId, element);
+            validatorBuilder.reset().parameter(OfficesApiConstants.parentId).value(parentId).notNull().integerGreaterThanZero();
+        }
+
+        throwExceptionIfValidationWarningsExist(dataValidationErrors);
+    }
+
+    public void validateForUpdate(final String json) {
+        if (StringUtils.isBlank(json)) throw new InvalidJsonException();
+
+        final Type typeOfMap = new TypeToken<Map<String, Object>>() {
+        }.getType();
+
+        this.fromJsonHelper.checkForUnsupportedParameters(typeOfMap, json, OfficesApiConstants.CREATE_UPDATE_PARAMETERS);
+
+        final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+        final var validatorBuilder = new DataValidatorBuilder(dataValidationErrors).resource(OfficesApiConstants.RESOURCE);
+
+        final var element = this.fromJsonHelper.parse(json);
+
+        if (this.fromJsonHelper.parameterExists(OfficesApiConstants.openingDate, element)) {
+            final var openingDate = this.fromJsonHelper.extractLocalDateNamed(OfficesApiConstants.openingDate, element);
+            validatorBuilder.reset().parameter(OfficesApiConstants.openingDate).value(openingDate).notNull();
+        }
+
+        if (this.fromJsonHelper.parameterExists(OfficesApiConstants.externalId, element)) {
+            final var externalId = this.fromJsonHelper.extractStringNamed(OfficesApiConstants.externalId, element);
+            validatorBuilder.reset().parameter(OfficesApiConstants.externalId).value(externalId).notExceedingLengthOf(100);
+        }
+
+        if (this.fromJsonHelper.parameterExists(OfficesApiConstants.parentId, element)) {
+            final var parentId = this.fromJsonHelper.extractLongNamed(OfficesApiConstants.parentId, element);
             validatorBuilder.reset().parameter(OfficesApiConstants.parentId).value(parentId).notNull().integerGreaterThanZero();
         }
 

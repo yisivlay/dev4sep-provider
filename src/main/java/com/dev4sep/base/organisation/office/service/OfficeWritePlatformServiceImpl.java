@@ -79,6 +79,63 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
         }
     }
 
+    @Override
+    public CommandProcessing update(final Long id, final JsonCommand command) {
+        try {
+            final var login = this.context.authenticatedUser();
+            this.validator.validateForUpdate(command.getJson());
+
+            final var parentId = command.longValueOfParameterNamed(OfficesApiConstants.parentId);
+
+            final var office = validateUserPrivilegeOnOfficeAndRetrieve(login, id);
+
+            final var changes = office.update(command);
+            if (!changes.isEmpty()) {
+                if (changes.containsKey(OfficesApiConstants.parentId)) {
+                    final var parent = validateUserPrivilegeOnOfficeAndRetrieve(login, parentId);
+                    office.setParent(parent);
+                }
+                this.officeRepositoryWrapper.save(office);
+            }
+            return new CommandProcessingBuilder()
+                    .withCommandId(command.commandId())
+                    .withResourceId(office.getId())
+                    .withOfficeId(office.getId())
+                    .with(changes)
+                    .build();
+        } catch (final JpaSystemException | DataIntegrityViolationException dve) {
+            handleOfficeDataIntegrityIssues(command, dve.getMostSpecificCause(), dve);
+            return CommandProcessing.empty();
+        } catch (final PersistenceException dve) {
+            Throwable throwable = ExceptionUtils.getRootCause(dve.getCause());
+            handleOfficeDataIntegrityIssues(command, throwable, dve);
+            return CommandProcessing.empty();
+        }
+    }
+
+    @Override
+    public CommandProcessing delete(final Long id) {
+        try {
+            this.context.authenticatedUser();
+
+            final var office = this.officeRepositoryWrapper.findOneWithNotFoundDetection(id);
+            this.officeRepositoryWrapper.delete(office);
+
+            return new CommandProcessingBuilder()
+                    .withResourceId(id)
+                    .withOfficeId(id)
+                    .build();
+        } catch (final JpaSystemException | DataIntegrityViolationException dve) {
+            handleOfficeDataIntegrityIssues(null, dve.getMostSpecificCause(), dve);
+            return CommandProcessing.empty();
+        } catch (final PersistenceException dve) {
+            Throwable throwable = ExceptionUtils.getRootCause(dve.getCause());
+            handleOfficeDataIntegrityIssues(null, throwable, dve);
+            return CommandProcessing.empty();
+        }
+
+    }
+
     private Office validateUserPrivilegeOnOfficeAndRetrieve(final User login, final Long officeId) {
 
         final var userOfficeId = login.getOffice().getId();

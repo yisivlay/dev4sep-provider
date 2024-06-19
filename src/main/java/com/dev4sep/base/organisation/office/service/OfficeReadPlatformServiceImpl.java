@@ -22,6 +22,7 @@ import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.config.service.PaginationHelper;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 import com.dev4sep.base.organisation.office.exception.OfficeNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -38,6 +39,7 @@ import java.util.List;
  * @author YISivlay
  */
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService {
 
     private static final String nameDecoratedBaseOnHierarchy = "concat(substring('........................................', 1, ((LENGTH(o.hierarchy) - LENGTH(REPLACE(o.hierarchy, '.', '')) - 1) * 4)), o.name)";
@@ -46,26 +48,17 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
     private final JdbcTemplate jdbcTemplate;
     private final PaginationHelper paginationHelper;
 
-    @Autowired
-    public OfficeReadPlatformServiceImpl(final PlatformSecurityContext context,
-                                         final JdbcTemplate jdbcTemplate,
-                                         final PaginationHelper paginationHelper) {
-        this.context = context;
-        this.jdbcTemplate = jdbcTemplate;
-        this.paginationHelper = paginationHelper;
-    }
-
     @Override
     public Page<OfficeData> getAllOffices(boolean includeAllOffices, RequestParameters requestParameters) {
 
-        final User login = this.context.authenticatedUser();
+        final var login = this.context.authenticatedUser();
         final List<Object> params = new LinkedList<>();
-        final OfficeMapper rm = new OfficeMapper();
+        final var rm = new OfficeMapper();
 
-        final String loginHierarchy = login.getOffice().getHierarchy();
-        final String hierarchySearchString = includeAllOffices ? "." + "%" : loginHierarchy + "%";
+        final var loginHierarchy = login.getOffice().getHierarchy();
+        final var hierarchySearchString = includeAllOffices ? "." + "%" : loginHierarchy + "%";
 
-        String sql = "SELECT " + rm.schema() + " WHERE o.hierarchy LIKE ? ";
+        var sql = "SELECT " + rm.schema() + " WHERE o.hierarchy LIKE ? ";
         params.add(hierarchySearchString);
         if (requestParameters != null) {
             if (requestParameters.hasOrderBy()) {
@@ -90,8 +83,8 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
     @Override
     public OfficeData getOneOffices(Long id) {
         try {
-            final OfficeMapper rm = new OfficeMapper();
-            String sql = "SELECT " + rm.schema() + " WHERE o.id = ? ";
+            final var rm = new OfficeMapper();
+            var sql = "SELECT " + rm.schema() + " WHERE o.id = ? ";
             return this.jdbcTemplate.queryForObject(sql, rm, id);
         } catch (EmptyResultDataAccessException e) {
             throw new OfficeNotFoundException(id, e);
@@ -107,12 +100,12 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
         @Override
         public OfficeData mapRow(ResultSet rs, int rowNum) throws SQLException {
 
-            final Long id = rs.getLong("id");
-            final String hierarchy = rs.getString("hierarchy");
-            final String externalId = rs.getString("external_id");
-            final String name = rs.getString("name");
-            final String nameDecorated = rs.getString("nameDecorated");
-            final Date openingDate = rs.getDate("opening_date");
+            final var id = rs.getLong("id");
+            final var hierarchy = rs.getString("hierarchy");
+            final var externalId = rs.getString("external_id");
+            final var name = rs.getString("name");
+            final var nameDecorated = rs.getString("nameDecorated");
+            final var openingDate = rs.getDate("opening_date");
 
             return OfficeData.builder()
                     .id(id)

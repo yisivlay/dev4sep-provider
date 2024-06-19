@@ -16,6 +16,7 @@
 package com.dev4sep.base.organisation.office.domain;
 
 import com.dev4sep.base.organisation.office.exception.OfficeNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,14 +25,10 @@ import org.springframework.transaction.annotation.Transactional;
  * @author YISivlay
  */
 @Service
+@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OfficeRepositoryWrapper {
 
     private final OfficeRepository repository;
-
-    @Autowired
-    public OfficeRepositoryWrapper(OfficeRepository repository) {
-        this.repository = repository;
-    }
 
     public Office findOneWithNotFoundDetection(final Long id) {
         return this.repository.findById(id).orElseThrow(() -> new OfficeNotFoundException(id));
@@ -39,7 +36,7 @@ public class OfficeRepositoryWrapper {
 
     @Transactional(readOnly = true)
     public Office findOfficeHierarchy(final Long id) {
-        final Office office = this.repository.findById(id).orElseThrow(() -> new OfficeNotFoundException(id));
+        final var office = this.repository.findById(id).orElseThrow(() -> new OfficeNotFoundException(id));
         office.loadLazyCollections();
         return office;
 
@@ -51,5 +48,9 @@ public class OfficeRepositoryWrapper {
 
     public Office save(final Office office) {
         return this.repository.save(office);
+    }
+
+    public void delete(final Office office) {
+        this.repository.delete(office);
     }
 }

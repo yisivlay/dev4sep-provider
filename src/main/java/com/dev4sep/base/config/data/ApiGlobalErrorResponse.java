@@ -93,6 +93,15 @@ public class ApiGlobalErrorResponse {
         return create(SC_FORBIDDEN, code, message, errors);
     }
 
+    public static ApiGlobalErrorResponse domainRuleViolation(final String code,
+                                                             final String message,
+                                                             final Object... args) {
+        final List<ApiParameterError> errors = new ArrayList<>();
+        errors.add(ApiParameterError.generalError(code, message, args));
+
+        return create(SC_FORBIDDEN, "validation.msg.domain.rule.violation", "Request was understood but caused a domain rule violation.", errors);
+    }
+
     public static ApiGlobalErrorResponse invalidTenantIdentifier() {
         return create(SC_UNAUTHORIZED, "error.msg.invalid.tenant.identifier", "Invalid tenant details were passed in api request.");
     }

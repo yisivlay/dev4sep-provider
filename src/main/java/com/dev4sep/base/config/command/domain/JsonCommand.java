@@ -22,7 +22,9 @@ import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
+import java.time.temporal.TemporalAccessor;
 import java.util.Date;
+import java.util.Objects;
 
 /**
  * @author YISivlay
@@ -40,6 +42,14 @@ public class JsonCommand {
     private final String entityName;
     private final String href;
 
+    public String dateFormat() {
+        return stringValueOfParameterNamed("dateFormat");
+    }
+
+    public String locale() {
+        return stringValueOfParameterNamed("locale");
+    }
+
     public Long commandId() {
         return this.commandId;
     }
@@ -53,7 +63,7 @@ public class JsonCommand {
     }
 
     public String stringValueOfParameterNamed(final String parameterName) {
-        final String value = this.fromApiJsonHelper.extractStringNamed(parameterName, this.parsedCommand);
+        final var value = this.fromApiJsonHelper.extractStringNamed(parameterName, this.parsedCommand);
         return StringUtils.defaultIfEmpty(value, "");
     }
 
@@ -63,5 +73,48 @@ public class JsonCommand {
 
     public JsonElement parsedJson() {
         return this.parsedCommand;
+    }
+
+    public boolean parameterExists(final String parameterName) {
+        return this.fromApiJsonHelper.parameterExists(parameterName, this.parsedCommand);
+    }
+
+    private boolean differenceExists(final Number baseValue, final Number workingCopyValue) {
+        return !Objects.equals(baseValue, workingCopyValue);
+    }
+
+    private boolean differenceExists(final TemporalAccessor baseValue, final TemporalAccessor workingCopyValue) {
+        return !Objects.equals(baseValue, workingCopyValue);
+    }
+
+    private boolean differenceExists(final String baseValue, final String workingCopyValue) {
+        return !Objects.equals(baseValue, workingCopyValue);
+    }
+
+    public boolean isChangeInLongParameterNamed(final String parameterName, final Long existingValue) {
+        var isChanged = false;
+        if (parameterExists(parameterName)) {
+            final var workingValue = longValueOfParameterNamed(parameterName);
+            isChanged = differenceExists(existingValue, workingValue);
+        }
+        return isChanged;
+    }
+
+    public boolean isChangeInLocalDateParameterNamed(final String parameterName, final LocalDate existingValue) {
+        var isChanged = false;
+        if (parameterExists(parameterName)) {
+            final var workingValue = localDateValueOfParameterNamed(parameterName);
+            isChanged = differenceExists(existingValue, workingValue);
+        }
+        return isChanged;
+    }
+
+    public boolean isChangeInStringParameterNamed(final String parameterName, final String existingValue) {
+        var isChanged = false;
+        if (parameterExists(parameterName)) {
+            final var workingValue = stringValueOfParameterNamed(parameterName);
+            isChanged = differenceExists(existingValue, workingValue);
+        }
+        return isChanged;
     }
 }

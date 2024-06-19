@@ -13,18 +13,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.organisation.office.service;
-
-import com.dev4sep.base.config.command.domain.CommandProcessing;
-import com.dev4sep.base.config.command.domain.JsonCommand;
+package com.dev4sep.base.config.exception;
 
 /**
  * @author YISivlay
  */
-public interface OfficeWritePlatformService {
-    CommandProcessing create(final JsonCommand command);
-
-    CommandProcessing update(final Long id, final JsonCommand command);
-
-    CommandProcessing delete(final Long id);
+public abstract class AbstractPlatformDomainRuleException extends AbstractPlatformException {
+    protected AbstractPlatformDomainRuleException(String msgCode,
+                                                  String userMsg,
+                                                  Object... userMsgArgs) {
+        super(msgCode, userMsg, userMsgArgs);
+    }
 }

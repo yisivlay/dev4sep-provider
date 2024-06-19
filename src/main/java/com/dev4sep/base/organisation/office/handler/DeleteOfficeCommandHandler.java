@@ -31,14 +31,14 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@CommandType(entity = OfficesApiConstants.PERMISSIONS, action = "CREATE")
-public class CreateOfficeCommandHandler implements CommandSourceHandler {
+@CommandType(entity = OfficesApiConstants.PERMISSIONS, action = "DELETE")
+public class DeleteOfficeCommandHandler implements CommandSourceHandler {
 
     private final OfficeWritePlatformService writePlatformService;
 
     @Override
     @Transactional
-    public CommandProcessing processCommand(final JsonCommand command) {
-        return this.writePlatformService.create(command);
+    public CommandProcessing processCommand(JsonCommand command) {
+        return this.writePlatformService.delete(command.getResourceId());
     }
 }

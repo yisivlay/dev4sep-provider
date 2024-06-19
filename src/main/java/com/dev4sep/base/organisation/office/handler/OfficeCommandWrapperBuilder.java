@@ -31,4 +31,20 @@ public class OfficeCommandWrapperBuilder extends CommandWrapperBuilder {
         return this;
     }
 
+    public CommandWrapperBuilder update(final Long id) {
+        this.actionName("UPDATE");
+        this.entityName(OfficesApiConstants.PERMISSIONS);
+        this.resourceId(id);
+        this.href(OfficesApiConstants.PATH + "/" + id);
+        return this;
+    }
+
+    public CommandWrapperBuilder delete(final Long id) {
+        this.actionName("DELETE");
+        this.entityName(OfficesApiConstants.PERMISSIONS);
+        this.resourceId(id);
+        this.href(OfficesApiConstants.PATH + "/" + id);
+        return this;
+    }
+
 }

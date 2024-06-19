@@ -18,6 +18,7 @@ package com.dev4sep.base.organisation.office.domain;
 import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
 import com.dev4sep.base.config.command.domain.JsonCommand;
 import com.dev4sep.base.organisation.office.api.OfficesApiConstants;
+import com.dev4sep.base.organisation.office.exception.RootOfficeParentCannotBeUpdated;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,7 +27,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author YISivlay
@@ -92,6 +95,42 @@ public class Office extends AbstractPersistableCustom implements Serializable {
         final var externalId = command.stringValueOfParameterNamedAllowingNull(OfficesApiConstants.externalId);
 
         return new Office(parent, name, openingDate, externalId);
+    }
+
+    public Map<String, Object> update(final JsonCommand command) {
+
+        final Map<String, Object> actualChanges = new LinkedHashMap<>(7);
+
+        final var dateFormatAsInput = command.dateFormat();
+        final var localeAsInput = command.locale();
+
+        if (command.parameterExists(OfficesApiConstants.parentId) && this.parent == null) {
+            throw new RootOfficeParentCannotBeUpdated();
+        }
+
+        if (this.parent != null && command.isChangeInLongParameterNamed(OfficesApiConstants.parentId, this.parent.getId())) {
+            final var newValue = command.longValueOfParameterNamed(OfficesApiConstants.parentId);
+            actualChanges.put(OfficesApiConstants.parentId, newValue);
+        }
+
+        final var openingDate = OfficesApiConstants.openingDate;
+        if (command.isChangeInLocalDateParameterNamed(openingDate, getOpeningDate())) {
+            final var newValue = command.stringValueOfParameterNamed(openingDate);
+            actualChanges.put(openingDate, newValue);
+            actualChanges.put("dateFormat", dateFormatAsInput);
+            actualChanges.put("locale", localeAsInput);
+
+            this.openingDate = command.localDateValueOfParameterNamed(openingDate);
+        }
+
+        final var name = OfficesApiConstants.name;
+        if (command.isChangeInStringParameterNamed(name, this.name)) {
+            final var newValue = command.stringValueOfParameterNamed(name);
+            actualChanges.put(name, newValue);
+            this.name = newValue;
+        }
+
+        return actualChanges;
     }
 
     private void addChild(final Office office) {

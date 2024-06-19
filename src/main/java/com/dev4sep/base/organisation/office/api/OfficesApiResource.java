@@ -16,14 +16,11 @@
 package com.dev4sep.base.organisation.office.api;
 
 import com.dev4sep.base.config.api.ApiRequestParameterHelper;
-import com.dev4sep.base.config.command.domain.CommandProcessing;
-import com.dev4sep.base.config.command.domain.CommandWrapper;
 import com.dev4sep.base.config.command.service.CommandSourceWritePlatformService;
 import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.serialization.ApiRequestJsonSerializationSettings;
 import com.dev4sep.base.config.serialization.DefaultToApiJsonSerializer;
-import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 import com.dev4sep.base.organisation.office.handler.OfficeCommandWrapperBuilder;
 import com.dev4sep.base.organisation.office.service.OfficeReadPlatformService;
@@ -34,12 +31,10 @@ import jakarta.ws.rs.core.UriInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  * @author YISivlay
  */
-@Path("/v1/offices")
+@Path("/v1" + OfficesApiConstants.PATH)
 @Component
 @RequiredArgsConstructor
 public class OfficesApiResource {
@@ -59,8 +54,8 @@ public class OfficesApiResource {
                                @QueryParam("offset") final Integer offset, @QueryParam("limit") final Integer limit) {
         this.context.authenticatedUser().validateHasReadPermission(OfficesApiConstants.PERMISSIONS);
 
-        RequestParameters requestParameters = RequestParameters.builder().orderBy(orderBy).sortOrder(sortOrder).offset(offset).limit(limit).build();
-        Page<OfficeData> offices = this.officeReadPlatformService.getAllOffices(includeAllOffices, requestParameters);
+        var requestParameters = RequestParameters.builder().orderBy(orderBy).sortOrder(sortOrder).offset(offset).limit(limit).build();
+        var offices = this.officeReadPlatformService.getAllOffices(includeAllOffices, requestParameters);
 
         final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         if (settings.isPagination()) {
@@ -78,9 +73,9 @@ public class OfficesApiResource {
 
         this.context.authenticatedUser().validateHasReadPermission(OfficesApiConstants.PERMISSIONS);
 
-        OfficeData office = this.officeReadPlatformService.getOneOffices(id);
+        var office = this.officeReadPlatformService.getOneOffices(id);
 
-        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        final var settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
         return this.toApiJsonSerializer.serialize(settings, office, OfficesApiConstants.RESPONSE_PARAMETERS);
     }
 
@@ -89,8 +84,32 @@ public class OfficesApiResource {
     @Produces({MediaType.APPLICATION_JSON})
     public String createOffice(final String requestBody) {
 
-        final CommandWrapper request = new OfficeCommandWrapperBuilder().create().json(requestBody).build();
-        final CommandProcessing result = this.commandSourceWritePlatformService.logCommandSource(request);
+        final var request = new OfficeCommandWrapperBuilder().create().json(requestBody).build();
+        final var result = this.commandSourceWritePlatformService.logCommandSource(request);
+        return this.toApiJsonSerializer.serialize(result);
+
+    }
+
+    @PUT
+    @Path("{id}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String updateOffice(@PathParam("id") final Long id, final String requestBody) {
+
+        final var request = new OfficeCommandWrapperBuilder().update(id).json(requestBody).build();
+        final var result = this.commandSourceWritePlatformService.logCommandSource(request);
+        return this.toApiJsonSerializer.serialize(result);
+
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String deleteOffice(@PathParam("id") final Long id) {
+
+        final var request = new OfficeCommandWrapperBuilder().delete(id).build();
+        final var result = this.commandSourceWritePlatformService.logCommandSource(request);
         return this.toApiJsonSerializer.serialize(result);
 
     }
