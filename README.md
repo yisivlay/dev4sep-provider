@@ -4,8 +4,8 @@ A Platform for RESTfull API Microservice with Spring Boot 3.2.6 and Java 17
 ## Requirements
 * Spring Boot 3.2.6
 * Java 17
-* MySQL 8.4
-* Apache Tomcat/10.1.24
+* MySQL/Mariadb 11.4.2
+* Apache Tomcat 10.1.24
 
 <br> Instructions: How to run local development
 =================
@@ -17,6 +17,18 @@ Run the following commands:
 2. `./gradlew createDB -PdbName=dev4sep-tenants`
 3. `./gradlew createDB -PdbName=dev4sep-default`
 4. `./gradlew bootRun`
+
+* NOTE: MySQL/Mariadb admin portal:
+> https://lcoalhost:8080
+>> username: root, password: admin@2024!
+
+
+<br> Security
+=============
+HTTP Basic Authentication
+-------------------------
+By default, is configured with a HTTP Basic Authentication scheme, so you actually don't have to do anything if you want to use it.
+1. `dev4sep.security.basicauth.enabled=true`
 
 <br> Manage Apache2 Licenses 
 ============================
