@@ -56,13 +56,13 @@ public class RoleReadPlatformServiceImpl implements RoleReadPlatformService {
             final var id = rs.getLong("id");
             final var name = rs.getString("name");
             final var description = rs.getString("description");
-            final var disabled = rs.getBoolean("disabled");
+            final var isDisabled = rs.getBoolean("is_disabled");
 
             return RoleData.builder()
                     .id(id)
                     .name(name)
                     .description(description)
-                    .disabled(disabled)
+                    .isDisabled(isDisabled)
                     .build();
         }
 

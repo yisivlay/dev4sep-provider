@@ -15,10 +15,10 @@
  */
 package com.dev4sep.base.config.utils;
 
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
+import com.dev4sep.base.config.ThreadLocalContextUtil;
+import com.dev4sep.base.config.datasource.database.domain.PlatformTenant;
+
+import java.time.*;
 import java.time.temporal.ChronoUnit;
 
 /**
@@ -29,6 +29,15 @@ public final class DateUtils {
     public static LocalDateTime getLocalDateTimeOfSystem(ChronoUnit truncate) {
         LocalDateTime now = LocalDateTime.now(ZoneId.systemDefault());
         return truncate == null ? now : now.truncatedTo(truncate);
+    }
+
+    public static ZoneId getDateTimeZoneOfTenant() {
+        final PlatformTenant tenant = ThreadLocalContextUtil.getTenant();
+        return ZoneId.of(tenant.getTimezoneId());
+    }
+
+    public static LocalDate getLocalDateOfTenant() {
+        return LocalDate.now(getDateTimeZoneOfTenant());
     }
 
     public static LocalDateTime getLocalDateTimeOfSystem() {

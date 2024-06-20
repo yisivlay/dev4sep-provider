@@ -38,7 +38,7 @@ public class PlatformApiDataValidationExceptionMapper implements ExceptionMapper
     @Override
     public Response toResponse(PlatformApiDataValidationException exception) {
         log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
-        final ApiGlobalErrorResponse dataValidationErrorResponse = ApiGlobalErrorResponse.badClientRequest(exception.getMsgCode(), exception.getUserMsg(), exception.getErrors());
+        final ApiGlobalErrorResponse dataValidationErrorResponse = ApiGlobalErrorResponse.badClientRequest(exception.getCode(), exception.getMessage(), exception.getErrors());
 
         return Response.status(Response.Status.BAD_REQUEST).entity(dataValidationErrorResponse).type(MediaType.APPLICATION_JSON).build();
     }

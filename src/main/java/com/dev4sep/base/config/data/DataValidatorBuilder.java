@@ -16,7 +16,9 @@
 package com.dev4sep.base.config.data;
 
 import com.dev4sep.base.config.exception.PlatformApiDataValidationException;
+import com.google.common.base.Splitter;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,6 +141,80 @@ public class DataValidatorBuilder {
                     maxLength,
                     this.value.toString()
             );
+            this.dataValidationErrors.add(error);
+        }
+        return this;
+    }
+
+    public DataValidatorBuilder equalToParameter(final String parameterName, final Object linkedValue) {
+        if (this.value == null && linkedValue == null && this.ignoreNullValue) {
+            return this;
+        }
+        if (this.value != null && !this.value.equals(linkedValue)) {
+            var errorCode = "validation.msg." + this.resource + "." + parameterName + ".not.equal.to." + this.parameter;
+            var message = "The parameter `" + parameterName + "` is not equal to " + this.parameter + ".";
+            final var error = ApiParameterError.parameterError(errorCode, message, parameterName, linkedValue, this.value);
+            this.dataValidationErrors.add(error);
+        }
+        return this;
+    }
+
+    public DataValidatorBuilder matchesRegularExpression(final String expression, final String message) {
+        if (this.value == null && this.ignoreNullValue) {
+            return this;
+        }
+        if (this.value != null && !this.value.toString().matches(expression)) {
+            var errorCode = "validation.msg." + this.resource + "." + this.parameter + ".does.not.match.regexp";
+            final var error = ApiParameterError.parameterError(errorCode, message, this.parameter, this.value, expression);
+            this.dataValidationErrors.add(error);
+        }
+        return this;
+    }
+
+    private DataValidatorBuilder validateStringFor(final String validInputs) {
+        if (this.value == null && this.ignoreNullValue) {
+            return this;
+        }
+        final Iterable<String> inputs = Splitter.onPattern(VALID_INPUT_SEPERATOR).split(validInputs);
+        var validationErr = true;
+        for (final var input : inputs) {
+            if (input.equalsIgnoreCase(this.value.toString().trim())) {
+                validationErr = false;
+                break;
+            }
+        }
+        if (validationErr) {
+            var errorCode = "validation.msg." + this.resource + "." + this.parameter + ".value.should.true.or.false";
+            var message = "The parameter `" + this.parameter + "` value should true or false ";
+            final var error = ApiParameterError.parameterError(errorCode, message, this.parameter, this.value);
+            this.dataValidationErrors.add(error);
+        }
+        return this;
+    }
+
+    public DataValidatorBuilder validateForBooleanValue() {
+        return validateStringFor("TRUE" + VALID_INPUT_SEPERATOR + "FALSE");
+    }
+
+    public DataValidatorBuilder trueOrFalseRequired(final Object trueOfFalseField) {
+        if (trueOfFalseField != null && !trueOfFalseField.toString().equalsIgnoreCase("true") && !trueOfFalseField.toString().equalsIgnoreCase("false")) {
+            var errorCode = "validation.msg." + this.resource + "." + this.parameter + ".must.be.true.or.false";
+            var message = "The parameter `" + this.parameter + "` must be set as true or false.";
+            final var error = ApiParameterError.parameterError(errorCode, message, this.parameter);
+            this.dataValidationErrors.add(error);
+        }
+        return this;
+    }
+
+    public DataValidatorBuilder arrayNotEmpty() {
+        if (this.value == null && this.ignoreNullValue) {
+            return this;
+        }
+        final var array = (Object[]) this.value;
+        if (ObjectUtils.isEmpty(array)) {
+            var errorCode = "validation.msg." + this.resource + "." + this.parameter + ".cannot.be.empty";
+            var message = "The parameter `" + this.parameter + "` cannot be empty. You must select at least one.";
+            final var error = ApiParameterError.parameterError(errorCode, message, this.parameter);
             this.dataValidationErrors.add(error);
         }
         return this;

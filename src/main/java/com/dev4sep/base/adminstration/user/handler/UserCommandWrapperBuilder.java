@@ -23,8 +23,24 @@ import com.dev4sep.base.config.command.domain.CommandWrapperBuilder;
  */
 public class UserCommandWrapperBuilder extends CommandWrapperBuilder {
 
+    public CommandWrapperBuilder create() {
+        this.actionName("CREATE");
+        this.entityName(UserApiConstants.PERMISSIONS);
+        this.resourceId(null);
+        this.href(UserApiConstants.PATH);
+        return this;
+    }
+
     public CommandWrapperBuilder update(final Long id) {
         this.actionName("UPDATE");
+        this.entityName(UserApiConstants.PERMISSIONS);
+        this.resourceId(id);
+        this.href(UserApiConstants.PATH + "/" + id);
+        return this;
+    }
+
+    public CommandWrapperBuilder delete(final Long id) {
+        this.actionName("DELETE");
         this.entityName(UserApiConstants.PERMISSIONS);
         this.resourceId(id);
         this.href(UserApiConstants.PATH + "/" + id);

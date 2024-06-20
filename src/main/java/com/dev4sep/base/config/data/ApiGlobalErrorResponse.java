@@ -32,8 +32,8 @@ import static org.apache.http.HttpStatus.*;
 public class ApiGlobalErrorResponse {
 
     private int status;
-    private String message;
     private String code;
+    private String message;
     private List<ApiParameterError> errors = new ArrayList<>();
 
     protected ApiGlobalErrorResponse() {
@@ -81,6 +81,33 @@ public class ApiGlobalErrorResponse {
         errors.add(ApiParameterError.resourceIdentifierNotFound(code, message, args));
 
         return create(SC_NOT_FOUND, "error.msg.resource.not.found", msg, errors);
+    }
+
+    public static ApiGlobalErrorResponse notFound(final String code,
+                                                  final String message,
+                                                  final String parameter,
+                                                  final Object value,
+                                                  final Object... args) {
+        String msg = "Not found";
+        final List<ApiParameterError> errors = new ArrayList<>();
+        errors.add(ApiParameterError.resourceIdentifierNotFound(code, message, parameter, value, args));
+
+        return create(SC_NOT_FOUND, "error.msg.resource.not.found", msg, errors);
+    }
+
+    public static ApiGlobalErrorResponse unAuthorized(final String message) {
+        String code = "error.msg.not.authorized";
+        final List<ApiParameterError> errors = List.of(ApiParameterError.generalError(code, message));
+
+        return create(SC_FORBIDDEN,
+                code,
+                "The user associated with credentials passed on this request does not have sufficient privileges to perform this action.",
+                errors
+        );
+    }
+
+    public static ApiGlobalErrorResponse unAuthenticated() {
+        return create(SC_UNAUTHORIZED, "error.msg.not.authenticated", "Unauthenticated. Please login.");
     }
 
     public static ApiGlobalErrorResponse dataIntegrityError(final String code,

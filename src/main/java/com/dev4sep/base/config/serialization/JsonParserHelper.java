@@ -84,6 +84,35 @@ public class JsonParserHelper {
         return stringValue;
     }
 
+    public Boolean extractBooleanNamed(final String parameterName, final JsonElement element, final Set<String> requestParamatersDetected) {
+        Boolean value = null;
+        if (element.isJsonObject()) {
+            final var object = element.getAsJsonObject();
+            if (object.has(parameterName) && object.get(parameterName).isJsonPrimitive()) {
+                requestParamatersDetected.add(parameterName);
+                final var primitive = object.get(parameterName).getAsJsonPrimitive();
+                value = primitive.getAsBoolean();
+            }
+        }
+        return value;
+    }
+
+    public String[] extractArrayNamed(final String parameterName, final JsonElement element, final Set<String> parametersPassedInRequest) {
+        String[] arrayValue = null;
+        if (element.isJsonObject()) {
+            final var object = element.getAsJsonObject();
+            if (object.has(parameterName)) {
+                parametersPassedInRequest.add(parameterName);
+                final var array = object.get(parameterName).getAsJsonArray();
+                arrayValue = new String[array.size()];
+                for (int i = 0; i < array.size(); i++) {
+                    arrayValue[i] = array.get(i).getAsString();
+                }
+            }
+        }
+        return arrayValue;
+    }
+
     public boolean parameterExists(final String parameterName, final JsonElement element) {
         if (element == null) {
             return false;

@@ -30,4 +30,8 @@
     <include file="versions/0009_create_table_configuration.xml" relativeToChangelogFile="true"/>
     <include file="versions/0010_insert_core_permission.xml" relativeToChangelogFile="true"/>
     <include file="versions/0011_insert_configuration_enable_auto_generate_external_id_.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0012_create_table_password_validation_policy.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0013_insert_role_user.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0014_update_table_user_auto_increment_id.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0015_create_table_user_previous_password.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

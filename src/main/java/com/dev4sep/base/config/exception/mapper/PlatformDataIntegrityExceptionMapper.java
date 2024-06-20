@@ -38,7 +38,7 @@ public class PlatformDataIntegrityExceptionMapper implements ExceptionMapper<Pla
     @Override
     public Response toResponse(PlatformDataIntegrityException exception) {
         log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
-        final ApiGlobalErrorResponse dataIntegrityError = ApiGlobalErrorResponse.dataIntegrityError(exception.getMsgCode(), exception.getUserMsg(), exception.getParameterName(), exception.getUserMsgArgs());
+        final ApiGlobalErrorResponse dataIntegrityError = ApiGlobalErrorResponse.dataIntegrityError(exception.getCode(), exception.getMessage(), exception.getParameterName(), exception.getArgs());
 
         return Response.status(Response.Status.FORBIDDEN).entity(dataIntegrityError).type(MediaType.APPLICATION_JSON).build();
     }

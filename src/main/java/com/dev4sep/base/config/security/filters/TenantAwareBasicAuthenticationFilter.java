@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.config.security.filters;
 
+import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.config.ThreadLocalContextUtil;
 import com.dev4sep.base.config.security.data.PlatformRequestLog;
 import com.dev4sep.base.config.security.exception.InvalidTenantIdentifierException;
@@ -29,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -108,5 +111,18 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
             log.info("{}", toApiJsonSerializer.serialize(msg));
         }
 
+    }
+
+    @Override
+    protected void onSuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, Authentication authResult) throws IOException {
+        super.onSuccessfulAuthentication(request, response, authResult);
+        var user = (User) authResult.getPrincipal();
+        var pathURL = request.getRequestURI();
+        var isSelfServiceRequest = pathURL != null && pathURL.contains("/self/");
+        var notAllowed = (isSelfServiceRequest && !user.isSelfServiceUser()) || (!isSelfServiceRequest && user.isSelfServiceUser());
+
+        if (notAllowed) {
+            throw new BadCredentialsException("User not authorised to use the requested resource.");
+        }
     }
 }

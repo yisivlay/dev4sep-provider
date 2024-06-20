@@ -54,6 +54,10 @@ public class FromJsonHelper {
         return parsedElement;
     }
 
+    public Boolean extractBooleanNamed(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.extractBooleanNamed(parameterName, element, new HashSet<String>());
+    }
+
     public Long extractLongNamed(final String parameterName, final JsonElement element) {
         return this.helperDelegator.extractLongNamed(parameterName, element, new HashSet<>());
     }
@@ -64,6 +68,10 @@ public class FromJsonHelper {
 
     public boolean parameterExists(final String parameterName, final JsonElement element) {
         return this.helperDelegator.parameterExists(parameterName, element);
+    }
+
+    public String[] extractArrayNamed(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.extractArrayNamed(parameterName, element, new HashSet<>());
     }
 
     public void checkForUnsupportedParameters(final Type typeOfMap, final String json, final Collection<String> supportedParams) {

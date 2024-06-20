@@ -19,9 +19,24 @@ package com.dev4sep.base.config.exception;
  * @author YISivlay
  */
 public abstract class AbstractPlatformResourceNotFoundException extends AbstractPlatformException {
-    protected AbstractPlatformResourceNotFoundException(final String msgCode,
-                                                        final String userMsg,
-                                                        final Object... userMsgArgs) {
-        super(msgCode, userMsg, userMsgArgs);
+    protected AbstractPlatformResourceNotFoundException(final String code,
+                                                        final String message,
+                                                        final String parameter,
+                                                        final Object value,
+                                                        final Object... args) {
+        super(code, message, parameter, value, args);
+    }
+
+    protected AbstractPlatformResourceNotFoundException(final String code,
+                                                        final String message,
+                                                        final String parameter,
+                                                        final Object value) {
+        super(code, message, parameter, value);
+    }
+
+    protected AbstractPlatformResourceNotFoundException(final String code,
+                                                        final String message,
+                                                        final Object... args) {
+        super(code, message, args);
     }
 }

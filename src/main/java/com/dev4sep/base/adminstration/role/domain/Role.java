@@ -19,6 +19,8 @@ import com.dev4sep.base.adminstration.permission.domain.Permission;
 import com.dev4sep.base.adminstration.role.data.RoleData;
 import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -28,6 +30,8 @@ import java.util.Set;
 /**
  * @author YISivlay
  */
+@Getter
+@Setter
 @Entity
 @Table(name = "tbl_role", uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}, name = "name")})
 public class Role extends AbstractPersistableCustom implements Serializable {
@@ -57,7 +61,7 @@ public class Role extends AbstractPersistableCustom implements Serializable {
                 .id(getId())
                 .name(this.name)
                 .description(this.description)
-                .disabled(this.disabled)
+                .isDisabled(this.disabled)
                 .build();
     }
 

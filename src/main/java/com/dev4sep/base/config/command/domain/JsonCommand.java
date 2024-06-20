@@ -15,15 +15,19 @@
  */
 package com.dev4sep.base.config.command.domain;
 
+import com.dev4sep.base.adminstration.user.domain.PlatformPasswordEncoder;
+import com.dev4sep.base.config.security.domain.BasicPasswordEncodablePlatformUser;
+import com.dev4sep.base.config.security.domain.PlatformUser;
 import com.dev4sep.base.config.serialization.FromJsonHelper;
 import com.google.gson.JsonElement;
 import lombok.Builder;
 import lombok.Getter;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 import java.time.temporal.TemporalAccessor;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -71,6 +75,23 @@ public class JsonCommand {
         return this.fromApiJsonHelper.extractStringNamed(parameterName, this.parsedCommand);
     }
 
+    public boolean booleanPrimitiveValueOfParameterNamed(final String parameterName) {
+        final var value = this.fromApiJsonHelper.extractBooleanNamed(parameterName, this.parsedCommand);
+        return ObjectUtils.defaultIfNull(value, Boolean.FALSE);
+    }
+
+    public Boolean booleanObjectValueOfParameterNamed(final String parameterName) {
+        return this.fromApiJsonHelper.extractBooleanNamed(parameterName, this.parsedCommand);
+    }
+
+    public String[] arrayValueOfParameterNamed(final String parameterName) {
+        return this.fromApiJsonHelper.extractArrayNamed(parameterName, this.parsedCommand);
+    }
+
+    public boolean hasParameter(final String parameterName) {
+        return parameterExists(parameterName);
+    }
+
     public JsonElement parsedJson() {
         return this.parsedCommand;
     }
@@ -89,6 +110,39 @@ public class JsonCommand {
 
     private boolean differenceExists(final String baseValue, final String workingCopyValue) {
         return !Objects.equals(baseValue, workingCopyValue);
+    }
+
+    private boolean differenceExists(final String[] baseValue, final String[] workingCopyValue) {
+        Arrays.sort(baseValue);
+        Arrays.sort(workingCopyValue);
+        return !Arrays.equals(baseValue, workingCopyValue);
+    }
+
+    private boolean differenceExists(final Boolean baseValue, final Boolean workingCopyValue) {
+        return !Objects.equals(baseValue, workingCopyValue);
+    }
+
+    public String passwordValueOfParameterNamed(final String parameterName,
+                                                final PlatformPasswordEncoder platformPasswordEncoder,
+                                                final Long saltValue) {
+        final String passwordPlainText = stringValueOfParameterNamed(parameterName);
+
+        final PlatformUser dummyPlatformUser = new BasicPasswordEncodablePlatformUser()
+                .setId(saltValue).setUsername("")
+                .setPassword(passwordPlainText);
+        return platformPasswordEncoder.encode(dummyPlatformUser);
+    }
+
+    public boolean isChangeInPasswordParameterNamed(final String parameterName,
+                                                    final String existingValue,
+                                                    final PlatformPasswordEncoder platformPasswordEncoder,
+                                                    final Long saltValue) {
+        boolean isChanged = false;
+        if (parameterExists(parameterName)) {
+            final String workingValue = passwordValueOfParameterNamed(parameterName, platformPasswordEncoder, saltValue);
+            isChanged = differenceExists(existingValue, workingValue);
+        }
+        return isChanged;
     }
 
     public boolean isChangeInLongParameterNamed(final String parameterName, final Long existingValue) {
@@ -113,6 +167,24 @@ public class JsonCommand {
         var isChanged = false;
         if (parameterExists(parameterName)) {
             final var workingValue = stringValueOfParameterNamed(parameterName);
+            isChanged = differenceExists(existingValue, workingValue);
+        }
+        return isChanged;
+    }
+
+    public boolean isChangeInArrayParameterNamed(final String parameterName, final String[] existingValue) {
+        var isChanged = false;
+        if (parameterExists(parameterName)) {
+            final var workingValue = arrayValueOfParameterNamed(parameterName);
+            isChanged = differenceExists(existingValue, workingValue);
+        }
+        return isChanged;
+    }
+
+    public boolean isChangeInBooleanParameterNamed(final String parameterName, final Boolean existingValue) {
+        var isChanged = false;
+        if (parameterExists(parameterName)) {
+            final var workingValue = booleanObjectValueOfParameterNamed(parameterName);
             isChanged = differenceExists(existingValue, workingValue);
         }
         return isChanged;

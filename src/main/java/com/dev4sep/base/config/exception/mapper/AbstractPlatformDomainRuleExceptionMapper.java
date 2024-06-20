@@ -38,9 +38,9 @@ public class AbstractPlatformDomainRuleExceptionMapper implements ExceptionMappe
     public Response toResponse(AbstractPlatformDomainRuleException exception) {
         log.debug("Exception occurred", ErrorHandler.findMostSpecificException(exception));
         final ApiGlobalErrorResponse notFoundErrorResponse = ApiGlobalErrorResponse.domainRuleViolation(
-                exception.getMsgCode(),
-                exception.getUserMsg(),
-                exception.getUserMsgArgs()
+                exception.getCode(),
+                exception.getMessage(),
+                exception.getArgs()
         );
         // request understood but not carried out due to it violating some
         // domain/business logic

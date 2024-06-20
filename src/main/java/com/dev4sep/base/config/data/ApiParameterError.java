@@ -15,27 +15,30 @@
  */
 package com.dev4sep.base.config.data;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author YISivlay
- */
+
+@Getter
+@Setter
 public final class ApiParameterError {
 
-    private final String message;
     private final String code;
+    private final String message;
+    private String parameterName;
     private final Object value;
     private final List<ApiErrorMessageArg> args;
-    private String parameterName;
 
     public ApiParameterError(final String code,
                              final String message,
                              final Object[] args,
                              String parameterName,
-                             String value) {
+                             Object value) {
         this.message = message;
         this.code = code;
         this.parameterName = parameterName;
@@ -75,6 +78,15 @@ public final class ApiParameterError {
         return new ApiParameterError(code, message, args, "id", null);
     }
 
+    public static ApiParameterError resourceIdentifierNotFound(final String code,
+                                                               final String message,
+                                                               final String parameter,
+                                                               final Object value,
+                                                               final Object... args) {
+        String parameterName = parameter != null ? parameter : "id";
+        return new ApiParameterError(code, message, args, parameterName, value);
+    }
+
     public static ApiParameterError parameterErrorWithValue(final String code,
                                                             final String message,
                                                             final String parameterName,
@@ -93,10 +105,6 @@ public final class ApiParameterError {
 
     public String getParameterName() {
         return this.parameterName;
-    }
-
-    public void setParameterName(final String parameterName) {
-        this.parameterName = parameterName;
     }
 
     public Object getValue() {

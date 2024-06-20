@@ -19,9 +19,9 @@ package com.dev4sep.base.config.exception;
  * @author YISivlay
  */
 public abstract class AbstractPlatformDomainRuleException extends AbstractPlatformException {
-    protected AbstractPlatformDomainRuleException(String msgCode,
-                                                  String userMsg,
-                                                  Object... userMsgArgs) {
-        super(msgCode, userMsg, userMsgArgs);
+    protected AbstractPlatformDomainRuleException(String code,
+                                                  String message,
+                                                  Object... args) {
+        super(code, message, args);
     }
 }

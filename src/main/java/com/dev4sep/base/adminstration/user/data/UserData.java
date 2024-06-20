@@ -31,12 +31,11 @@ public class UserData {
 
     private final Long id;
     private final String username;
-    private final Long officeId;
-    private final String officeName;
+    private final OfficeData officeData;
     private final String firstname;
     private final String lastname;
     private final String email;
-    private final Boolean passwordNeverExpires;
+    private final Boolean isPasswordNeverExpire;
     private List<Long> roles;
     private Boolean sendPasswordToEmail;
     private final List<OfficeData> allowedOffices;

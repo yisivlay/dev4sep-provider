@@ -17,12 +17,17 @@ package com.dev4sep.base.adminstration.user.service;
 
 import com.dev4sep.base.adminstration.role.service.RoleReadPlatformService;
 import com.dev4sep.base.adminstration.user.data.UserData;
+import com.dev4sep.base.adminstration.user.exception.UserNotFoundException;
 import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.config.service.PaginationHelper;
+import com.dev4sep.base.organisation.office.data.OfficeData;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
@@ -38,6 +43,7 @@ import java.util.LinkedList;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserReadPlatformServiceImpl implements UserReadPlatformService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserReadPlatformServiceImpl.class);
     private final PlatformSecurityContext context;
     private final JdbcTemplate jdbcTemplate;
     private final PaginationHelper paginationHelper;
@@ -52,7 +58,8 @@ public class UserReadPlatformServiceImpl implements UserReadPlatformService {
         final var hierarchySearch = hierarchy + "%";
 
         final var mapper = new UserMapper(this.roleReadPlatformService);
-        var sql = "SELECT " + mapper.schema();
+        var sql = "SELECT " + mapper.schema() + " AND o.hierarchy LIKE ? ";
+        params.add(hierarchySearch);
 
         if (requestParameters != null) {
             if (requestParameters.hasOrderBy()) {
@@ -67,13 +74,27 @@ public class UserReadPlatformServiceImpl implements UserReadPlatformService {
                     }
                 }
             } else {
-                sql += " ORDER BY o.hierarchy ";
+                sql += " ORDER BY u.username ";
             }
         }
-        params.add(hierarchySearch);
+
         var where = params.toArray();
         return this.paginationHelper.fetchPage(this.jdbcTemplate, sql, where, mapper);
 
+    }
+
+    @Override
+    public UserData getOneUser(final Long id) {
+        try {
+            this.context.authenticatedUser();
+            final var mapper = new UserMapper(this.roleReadPlatformService);
+            var sql = "SELECT " + mapper.schema() + " AND u.id = ? ";
+
+            return this.jdbcTemplate.queryForObject(sql, mapper, id);
+        } catch (final EmptyResultDataAccessException dve) {
+            log.warn("User with id {} not found", id, dve);
+            throw new UserNotFoundException(id);
+        }
     }
 
     private record UserMapper(RoleReadPlatformService roleReadPlatformService) implements RowMapper<UserData> {
@@ -88,7 +109,8 @@ public class UserReadPlatformServiceImpl implements UserReadPlatformService {
             final var email = rs.getString("email");
             final var officeId = rs.getLong("office_id");
             final var officeName = rs.getString("office_name");
-            final var passwordNeverExpire = rs.getBoolean("password_never_expires");
+            final var officeData = OfficeData.builder().id(officeId).name(officeName).build();
+            final var isPasswordNeverExpire = rs.getBoolean("is_password_never_expires");
             final var isSelfServiceUser = rs.getBoolean("is_self_service_user");
             final var selectedRoles = this.roleReadPlatformService.getUserRoles(id);
 
@@ -96,12 +118,11 @@ public class UserReadPlatformServiceImpl implements UserReadPlatformService {
                     .id(id)
                     .username(username)
                     .email(email)
-                    .officeId(officeId)
-                    .officeName(officeName)
+                    .officeData(officeData)
                     .firstname(firstname)
                     .lastname(lastname)
                     .selectedRoles(selectedRoles)
-                    .passwordNeverExpires(passwordNeverExpire)
+                    .isPasswordNeverExpire(isPasswordNeverExpire)
                     .isSelfServiceUser(isSelfServiceUser)
                     .build();
         }
@@ -112,13 +133,13 @@ public class UserReadPlatformServiceImpl implements UserReadPlatformService {
                     "u.firstname, " +
                     "u.lastname, " +
                     "u.email, " +
-                    "u.password_never_expires, " +
+                    "u.is_password_never_expires, " +
                     "u.office_id, " +
                     "o.name as office_name, " +
                     "u.is_self_service_user " +
                     "FROM tbl_user u " +
                     "JOIN tbl_office o ON o.id = u.office_id " +
-                    "WHERE o.hierarchy LIKE ? AND u.is_deleted = false ORDER BY u.username";
+                    "WHERE u.is_deleted = false ";
         }
 
     }

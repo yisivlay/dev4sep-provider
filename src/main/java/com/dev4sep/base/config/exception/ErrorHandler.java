@@ -54,13 +54,12 @@ import static org.springframework.core.ResolvableType.forClassWithGenerics;
  */
 @Slf4j
 @Component
-@AllArgsConstructor
+@AllArgsConstructor(onConstructor = @__(@Autowired))
 public final class ErrorHandler {
 
     private static final Gson JSON_HELPER = GoogleGsonSerializerHelper.createGsonBuilder(true).create();
-    @Autowired
+
     private final ApplicationContext ctx;
-    @Autowired
     private final DefaultExceptionMapper defaultExceptionMapper;
 
     public static RuntimeException getMappable(@NotNull Throwable thr) {
@@ -137,8 +136,8 @@ public final class ErrorHandler {
         Class<?> clazz = exception.getClass();
         do {
             var exceptionMappers = createSet(ctx.getBeanNamesForType(forClassWithGenerics(ExceptionMapper.class, clazz)));
-            var fineractErrorMappers = createSet(ctx.getBeanNamesForType(CustomExceptionMapper.class));
-            var intersection = SetUtils.intersection(exceptionMappers, fineractErrorMappers);
+            var errorMappers = createSet(ctx.getBeanNamesForType(CustomExceptionMapper.class));
+            var intersection = SetUtils.intersection(exceptionMappers, errorMappers);
             if (!intersection.isEmpty()) {
                 // noinspection unchecked
                 return (ExceptionMapper<T>) ctx.getBean(intersection.iterator().next());
@@ -196,8 +195,6 @@ public final class ErrorHandler {
 
     /**
      * Returns an object of ErrorInfo type containing the information regarding the raised error.
-     *
-     * @param exception
      * @return ErrorInfo
      */
     public ErrorInfo handle(@NotNull RuntimeException exception) {

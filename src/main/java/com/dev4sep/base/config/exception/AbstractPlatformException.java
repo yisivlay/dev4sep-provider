@@ -15,46 +15,75 @@
  */
 package com.dev4sep.base.config.exception;
 
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author YISivlay
  */
+@Getter
 public abstract class AbstractPlatformException extends RuntimeException {
 
     private static final Object[] NO_ARGS = new Object[0];
 
-    private final String msgCode;
-    private final String userMsg;
-    private final Object[] userMsgArgs;
+    private final String code;
+    private final String message;
+    private final String parameter;
+    private final Object value;
+    private final Object[] args;
 
-    protected AbstractPlatformException(String msgCode, String userMsg) {
-        super(userMsg);
-        this.msgCode = msgCode;
-        this.userMsg = userMsg;
-        this.userMsgArgs = NO_ARGS;
+    protected AbstractPlatformException(String code, String message) {
+        super(message);
+        this.code = code;
+        this.message = message;
+        this.parameter = null;
+        this.value = null;
+        this.args = NO_ARGS;
     }
 
-    protected AbstractPlatformException(String msgCode, String userMsg, Object[] userMsgArgs) {
-        super(msgCode, findThrowableCause(userMsgArgs));
-        this.msgCode = msgCode;
-        this.userMsg = userMsg;
-        this.userMsgArgs = AbstractPlatformException.filterThrowableCause(userMsgArgs);
+    protected AbstractPlatformException(String code, String message, String parameter, Object value) {
+        super(message);
+        this.code = code;
+        this.message = message;
+        this.parameter = parameter;
+        this.value = value;
+        this.args = NO_ARGS;
     }
 
-    protected AbstractPlatformException(String msgCode, String userMsg, Throwable cause) {
-        super(userMsg, cause);
-        this.msgCode = msgCode;
-        this.userMsg = userMsg;
-        this.userMsgArgs = NO_ARGS;
+    protected AbstractPlatformException(String code, String message, Object[] args) {
+        super(code, findThrowableCause(args));
+        this.code = code;
+        this.message = message;
+        this.parameter = null;
+        this.value = null;
+        this.args = AbstractPlatformException.filterThrowableCause(args);
     }
 
-    private static Throwable findThrowableCause(Object[] userMsgArgs) {
-        if (userMsgArgs == null) {
+    protected AbstractPlatformException(String code, String message, String parameter, Object value, Object[] args) {
+        super(code, findThrowableCause(args));
+        this.code = code;
+        this.message = message;
+        this.parameter = parameter;
+        this.value = value;
+        this.args = AbstractPlatformException.filterThrowableCause(args);
+    }
+
+    protected AbstractPlatformException(String code, String message, Throwable cause) {
+        super(message, cause);
+        this.code = code;
+        this.message = message;
+        this.parameter = null;
+        this.value = null;
+        this.args = NO_ARGS;
+    }
+
+    private static Throwable findThrowableCause(Object[] args) {
+        if (args == null) {
             return null;
         }
-        for (Object userMessageArg : userMsgArgs) {
+        for (Object userMessageArg : args) {
             if (userMessageArg instanceof Throwable) {
                 return (Throwable) userMessageArg;
             }
@@ -62,28 +91,16 @@ public abstract class AbstractPlatformException extends RuntimeException {
         return null;
     }
 
-    private static Object[] filterThrowableCause(Object[] userMsgArgs) {
-        if (userMsgArgs == null) {
+    private static Object[] filterThrowableCause(Object[] args) {
+        if (args == null) {
             return NO_ARGS;
         }
-        List<Object> filteredDefaultUserMessageArgs = new ArrayList<>(userMsgArgs.length);
-        for (Object userMessageArg : userMsgArgs) {
+        List<Object> filteredDefaultUserMessageArgs = new ArrayList<>(args.length);
+        for (Object userMessageArg : args) {
             if (!(userMessageArg instanceof Throwable)) {
                 filteredDefaultUserMessageArgs.add(userMessageArg);
             }
         }
         return filteredDefaultUserMessageArgs.toArray();
-    }
-
-    public final String getMsgCode() {
-        return this.msgCode;
-    }
-
-    public String getUserMsg() {
-        return userMsg;
-    }
-
-    public Object[] getUserMsgArgs() {
-        return userMsgArgs;
     }
 }

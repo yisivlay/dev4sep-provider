@@ -27,4 +27,8 @@ public class RoleNotFoundException extends AbstractPlatformResourceNotFoundExcep
         super("error.msg.role.id.invalid", "Role does not exist.", id, e);
     }
 
+    public RoleNotFoundException(Long id) {
+        super("error.msg.role.id.invalid", "Role does not exist.", id);
+    }
+
 }

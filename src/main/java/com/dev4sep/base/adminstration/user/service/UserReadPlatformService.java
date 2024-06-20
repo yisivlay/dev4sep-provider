@@ -24,4 +24,6 @@ import com.dev4sep.base.config.service.Page;
  */
 public interface UserReadPlatformService {
     Page<UserData> getAllUsers(RequestParameters requestParameters);
+
+    UserData getOneUser(final Long id);
 }
