@@ -24,7 +24,6 @@ import com.dev4sep.base.organisation.office.service.OfficeWritePlatformService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author YISivlay
@@ -37,7 +36,6 @@ public class UpdateOfficeCommandHandler implements CommandSourceHandler {
     private final OfficeWritePlatformService writePlatformService;
 
     @Override
-    @Transactional
     public CommandProcessing processCommand(JsonCommand command) {
         return this.writePlatformService.update(command.getResourceId(), command);
     }

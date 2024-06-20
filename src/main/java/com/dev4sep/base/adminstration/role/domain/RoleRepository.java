@@ -17,9 +17,14 @@ package com.dev4sep.base.adminstration.role.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /**
  * @author YISivlay
  */
 public interface RoleRepository extends JpaRepository<Role, Long>, JpaSpecificationExecutor<Role> {
+
+    @Query("SELECT COUNT(a) FROM User a JOIN a.roles r WHERE r.id = :roleId AND a.deleted = false")
+    Integer getCountOfRolesAssociatedWithUsers(@Param("roleId") Long roleId);
 }

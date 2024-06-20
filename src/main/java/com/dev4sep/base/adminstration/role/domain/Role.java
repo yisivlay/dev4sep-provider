@@ -16,16 +16,16 @@
 package com.dev4sep.base.adminstration.role.domain;
 
 import com.dev4sep.base.adminstration.permission.domain.Permission;
+import com.dev4sep.base.adminstration.role.api.RoleApiConstants;
 import com.dev4sep.base.adminstration.role.data.RoleData;
 import com.dev4sep.base.config.auditing.domain.AbstractPersistableCustom;
+import com.dev4sep.base.config.command.domain.JsonCommand;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author YISivlay
@@ -50,6 +50,41 @@ public class Role extends AbstractPersistableCustom implements Serializable {
     private Set<Permission> permissions = new HashSet<>();
 
     protected Role() {
+    }
+
+    public Role(final String name, final String description, final Boolean isDisable) {
+        this.name = name;
+        this.description = description;
+        this.disabled = isDisable != null ? isDisable : false;
+    }
+
+    public static Role fromJson(JsonCommand command) {
+
+        final String name = command.stringValueOfParameterNamed(RoleApiConstants.name);
+        final String description = command.stringValueOfParameterNamed(RoleApiConstants.description);
+        final Boolean isDisable = command.booleanObjectValueOfParameterNamed(RoleApiConstants.isDisable);
+
+        return new Role(name, description, isDisable);
+    }
+
+    public Map<String, Object> update(JsonCommand command) {
+        final Map<String, Object> actualChanges = new LinkedHashMap<>(7);
+
+        final String name = RoleApiConstants.name;
+        if (command.isChangeInStringParameterNamed(name, this.name)) {
+            final String newValue = command.stringValueOfParameterNamed(name);
+            actualChanges.put(name, newValue);
+            this.name = newValue;
+        }
+
+        final String description = RoleApiConstants.description;
+        if (command.isChangeInStringParameterNamed(description, this.description)) {
+            final String newValue = command.stringValueOfParameterNamed(description);
+            actualChanges.put(description, newValue);
+            this.description = newValue;
+        }
+
+        return actualChanges;
     }
 
     public Collection<Permission> getPermissions() {

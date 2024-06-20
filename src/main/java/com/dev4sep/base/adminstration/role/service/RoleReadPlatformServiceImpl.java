@@ -17,7 +17,11 @@ package com.dev4sep.base.adminstration.role.service;
 
 import com.dev4sep.base.adminstration.role.data.RoleData;
 import com.dev4sep.base.adminstration.role.exception.RoleNotFoundException;
+import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.service.Page;
+import com.dev4sep.base.config.service.PaginationHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -31,12 +35,50 @@ import java.util.List;
 /**
  * @author YISivlay
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class RoleReadPlatformServiceImpl implements RoleReadPlatformService {
 
+    private final PaginationHelper paginationHelper;
     private final JdbcTemplate jdbcTemplate;
     private final RoleMapper roleRowMapper = new RoleMapper();
+
+    @Override
+    public Page<RoleData> getAllRoles(final RequestParameters requestParameters) {
+        var sql = "SELECT " + roleRowMapper.schema();
+
+        if (requestParameters != null) {
+            if (requestParameters.hasOrderBy()) {
+                sql += " ORDER BY " + requestParameters.getOrderBy();
+                if (requestParameters.hasSortOrder()) {
+                    sql += " ".concat(requestParameters.getSortOrder());
+                }
+                if (requestParameters.hasLimit()) {
+                    sql += " LIMIT " + requestParameters.getLimit();
+                    if (requestParameters.hasOffset()) {
+                        sql += " OFFSET " + requestParameters.getOffset();
+                    }
+                }
+            } else {
+                sql += " ORDER BY r.id ASC ";
+            }
+        }
+
+        return this.paginationHelper.fetchPage(this.jdbcTemplate, sql, new Object[]{}, this.roleRowMapper);
+    }
+
+    @Override
+    public RoleData getOneRole(final Long id) {
+        try {
+            var sql = "SELECT " + roleRowMapper.schema() + " WHERE r.id = ? ";
+
+            return this.jdbcTemplate.queryForObject(sql, this.roleRowMapper, id);
+        } catch (final EmptyResultDataAccessException dve) {
+            log.warn("Role with id {} not found", id, dve);
+            throw new RoleNotFoundException(id);
+        }
+    }
 
     @Override
     public List<RoleData> getUserRoles(final Long id) {

@@ -21,7 +21,6 @@ import com.dev4sep.base.config.command.annotation.CommandType;
 import com.dev4sep.base.config.command.domain.CommandProcessing;
 import com.dev4sep.base.config.command.domain.JsonCommand;
 import com.dev4sep.base.config.command.handler.CommandSourceHandler;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,6 @@ public class DeleteUserCommandHandler implements CommandSourceHandler {
     private final UserWritePlatformService writePlatformService;
 
     @Override
-    @Transactional
     public CommandProcessing processCommand(final JsonCommand command) {
         return this.writePlatformService.delete(command.getResourceId());
     }

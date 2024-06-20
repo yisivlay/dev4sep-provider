@@ -41,6 +41,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Arrays;
@@ -53,6 +54,7 @@ import java.util.Set;
  */
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class UserWritePlatformServiceImpl implements UserWritePlatformService {
 

@@ -16,6 +16,8 @@
 package com.dev4sep.base.adminstration.role.service;
 
 import com.dev4sep.base.adminstration.role.data.RoleData;
+import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.service.Page;
 
 import java.util.List;
 
@@ -25,4 +27,8 @@ import java.util.List;
 public interface RoleReadPlatformService {
 
     List<RoleData> getUserRoles(final Long id);
+
+    Page<RoleData> getAllRoles(final RequestParameters requestParameters);
+
+    RoleData getOneRole(final Long id);
 }
