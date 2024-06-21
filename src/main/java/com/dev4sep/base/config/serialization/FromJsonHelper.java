@@ -54,6 +54,10 @@ public class FromJsonHelper {
         return parsedElement;
     }
 
+    public <T> T fromJson(final String json, final Class<T> classOfT) {
+        return this.gsonConverter.fromJson(json, classOfT);
+    }
+
     public Boolean extractBooleanNamed(final String parameterName, final JsonElement element) {
         return this.helperDelegator.extractBooleanNamed(parameterName, element, new HashSet<String>());
     }

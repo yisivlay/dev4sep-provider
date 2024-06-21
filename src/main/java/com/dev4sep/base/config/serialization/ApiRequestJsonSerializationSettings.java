@@ -54,6 +54,10 @@ public class ApiRequestJsonSerializationSettings {
         return new ApiRequestJsonSerializationSettings(prettyPrint, parametersForPartialResponse, template, makerChecker, includeJson, pagination);
     }
 
+    public boolean isMakerChecker() {
+        return this.makerChecker;
+    }
+
     public boolean isPartialResponseRequired() {
         return !this.parametersForPartialResponse.isEmpty();
     }

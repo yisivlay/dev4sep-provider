@@ -13,15 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.permission.exception;
+package com.dev4sep.base.adminstration.permission.handler;
 
-import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
+import com.dev4sep.base.adminstration.permission.api.PermissionApiConstants;
+import com.dev4sep.base.config.command.domain.CommandWrapperBuilder;
 
 /**
  * @author YISivlay
  */
-public class PermissionNotFoundException extends AbstractPlatformResourceNotFoundException {
-    public PermissionNotFoundException(final String code) {
-        super("error.msg.permission.code.invalid", "Permission with code " + code + " does not exist", code);
+public class PermissionCommandWrapperBuilder extends CommandWrapperBuilder {
+
+    public CommandWrapperBuilder update() {
+        this.actionName("UPDATE");
+        this.entityName(PermissionApiConstants.PERMISSIONS);
+        this.resourceId(null);
+        this.href(PermissionApiConstants.PATH);
+        return this;
     }
+
 }

@@ -20,12 +20,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import lombok.Getter;
 
 import java.io.Serializable;
 
 /**
  * @author YISivlay
  */
+@Getter
 @Entity
 @Table(name = "tbl_permission", uniqueConstraints = {@UniqueConstraint(columnNames = {"code"}, name = "code")})
 public class Permission extends AbstractPersistableCustom implements Serializable {
@@ -48,15 +50,17 @@ public class Permission extends AbstractPersistableCustom implements Serializabl
     protected Permission() {
     }
 
-    public String getCode() {
-        return this.code;
-    }
-
     public boolean hasCode(final String checkCode) {
         return this.code.equalsIgnoreCase(checkCode);
     }
 
     public boolean hasMakerCheckerEnabled() {
         return this.canMakerChecker;
+    }
+
+    public boolean enableMakerChecker(final boolean canMakerChecker) {
+        final var isUpdatedValueSame = this.canMakerChecker == canMakerChecker;
+        this.canMakerChecker = canMakerChecker;
+        return !isUpdatedValueSame;
     }
 }

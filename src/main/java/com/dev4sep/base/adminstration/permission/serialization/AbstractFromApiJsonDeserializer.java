@@ -13,15 +13,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.permission.exception;
-
-import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
+package com.dev4sep.base.adminstration.permission.serialization;
 
 /**
  * @author YISivlay
  */
-public class PermissionNotFoundException extends AbstractPlatformResourceNotFoundException {
-    public PermissionNotFoundException(final String code) {
-        super("error.msg.permission.code.invalid", "Permission with code " + code + " does not exist", code);
-    }
+public abstract class AbstractFromApiJsonDeserializer<T> implements FromApiJsonDeserializer<T> {
+
+    @Override
+    public abstract T commandFromApiJson(String json);
 }

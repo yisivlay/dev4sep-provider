@@ -13,15 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.permission.exception;
+package com.dev4sep.base.adminstration.permission.service;
 
-import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
+import com.dev4sep.base.adminstration.permission.data.PermissionData;
+import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.service.Page;
 
 /**
  * @author YISivlay
  */
-public class PermissionNotFoundException extends AbstractPlatformResourceNotFoundException {
-    public PermissionNotFoundException(final String code) {
-        super("error.msg.permission.code.invalid", "Permission with code " + code + " does not exist", code);
-    }
+public interface PermissionReadPlatformService {
+    Page<PermissionData> getAllPermissions(final RequestParameters requestParameters);
+
+    Page<PermissionData> getAllMakerCheckerPermissions(final RequestParameters requestParameters);
 }

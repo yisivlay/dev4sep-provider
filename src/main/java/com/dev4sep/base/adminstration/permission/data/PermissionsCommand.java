@@ -13,15 +13,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.adminstration.permission.exception;
+package com.dev4sep.base.adminstration.permission.data;
 
-import com.dev4sep.base.config.exception.AbstractPlatformResourceNotFoundException;
+import java.util.Map;
 
 /**
  * @author YISivlay
  */
-public class PermissionNotFoundException extends AbstractPlatformResourceNotFoundException {
-    public PermissionNotFoundException(final String code) {
-        super("error.msg.permission.code.invalid", "Permission with code " + code + " does not exist", code);
-    }
+public record PermissionsCommand(Map<String, Boolean> permissions) {
 }
