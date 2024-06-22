@@ -19,6 +19,7 @@ import com.dev4sep.base.adminstration.role.data.RoleData;
 import com.dev4sep.base.adminstration.role.handler.RoleCommandWrapperBuilder;
 import com.dev4sep.base.adminstration.role.service.RoleReadPlatformService;
 import com.dev4sep.base.config.api.ApiRequestParameterHelper;
+import com.dev4sep.base.config.command.domain.CommandProcessing;
 import com.dev4sep.base.config.command.domain.CommandWrapper;
 import com.dev4sep.base.config.command.service.CommandSourceWritePlatformService;
 import com.dev4sep.base.config.data.RequestParameters;
@@ -29,6 +30,7 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -79,7 +81,7 @@ public class RoleApiResource {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public String createUser(final String jsonBody) {
+    public String createRole(final String jsonBody) {
         this.context.authenticatedUser().validateHasCreatePermission(RoleApiConstants.PERMISSIONS);
         final CommandWrapper request = new RoleCommandWrapperBuilder().create().json(jsonBody).build();
         final var result = this.commandSourceWritePlatformService.logCommandSource(request);
@@ -90,9 +92,33 @@ public class RoleApiResource {
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public String updateUser(@PathParam("id") final Long id, final String jsonBody) {
+    public String updateRole(@PathParam("id") final Long id,
+                             @DefaultValue("") @QueryParam("command") final String command,
+                             final String jsonBody) {
         this.context.authenticatedUser().validateHasUpdatePermission(RoleApiConstants.PERMISSIONS);
-        final CommandWrapper request = new RoleCommandWrapperBuilder().update(id).json(jsonBody).build();
+
+        final RoleCommandWrapperBuilder builder = (RoleCommandWrapperBuilder) new RoleCommandWrapperBuilder().json(jsonBody);
+        CommandProcessing result = null;
+        if (is(command, "disable")) {
+            final CommandWrapper reqDisable = builder.disableRole(id).build();
+            result = this.commandSourceWritePlatformService.logCommandSource(reqDisable);
+        } else if (is(command, "enable")) {
+            final CommandWrapper reqEnable = builder.enableRole(id).build();
+            result = this.commandSourceWritePlatformService.logCommandSource(reqEnable);
+        } else {
+            final CommandWrapper reqEnable = builder.update(id).build();
+            result = this.commandSourceWritePlatformService.logCommandSource(reqEnable);
+        }
+        return this.toApiJsonSerializer.serialize(result);
+    }
+
+    @PUT
+    @Path("{id}/permission")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String updateRolePermission(@PathParam("id") final Long id, final String jsonBody) {
+        this.context.authenticatedUser().validateHasUpdatePermission(RoleApiConstants.PERMISSIONS);
+        final CommandWrapper request = new RoleCommandWrapperBuilder().updateRolePermission(id).json(jsonBody).build();
         final var result = this.commandSourceWritePlatformService.logCommandSource(request);
         return this.toApiJsonSerializer.serialize(result);
     }
@@ -101,10 +127,14 @@ public class RoleApiResource {
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public String deleteUser(@PathParam("id") final Long id) {
+    public String deleteRole(@PathParam("id") final Long id) {
         this.context.authenticatedUser().validateHasDeletePermission(RoleApiConstants.PERMISSIONS);
         final CommandWrapper request = new RoleCommandWrapperBuilder().delete(id).build();
         final var result = this.commandSourceWritePlatformService.logCommandSource(request);
         return this.toApiJsonSerializer.serialize(result);
+    }
+
+    private boolean is(final String command, final String value) {
+        return StringUtils.isNotBlank(command) && command.trim().equalsIgnoreCase(value);
     }
 }

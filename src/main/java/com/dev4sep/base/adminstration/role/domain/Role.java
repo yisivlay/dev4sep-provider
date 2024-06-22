@@ -87,6 +87,25 @@ public class Role extends AbstractPersistableCustom implements Serializable {
         return actualChanges;
     }
 
+    public boolean updatePermission(final Permission permission, final boolean isSelected) {
+        var changed = false;
+        if (isSelected) {
+            changed = addPermission(permission);
+        } else {
+            changed = removePermission(permission);
+        }
+
+        return changed;
+    }
+
+    private boolean addPermission(final Permission permission) {
+        return this.permissions.add(permission);
+    }
+
+    private boolean removePermission(final Permission permission) {
+        return this.permissions.remove(permission);
+    }
+
     public Collection<Permission> getPermissions() {
         return this.permissions;
     }

@@ -15,12 +15,19 @@
  */
 package com.dev4sep.base.adminstration.role.service;
 
+import com.dev4sep.base.adminstration.permission.api.PermissionApiConstants;
+import com.dev4sep.base.adminstration.permission.data.PermissionsCommand;
+import com.dev4sep.base.adminstration.permission.domain.Permission;
+import com.dev4sep.base.adminstration.permission.domain.PermissionRepository;
+import com.dev4sep.base.adminstration.permission.exception.PermissionNotFoundException;
+import com.dev4sep.base.adminstration.permission.serialization.PermissionsCommandDataValidator;
 import com.dev4sep.base.adminstration.role.api.RoleApiConstants;
 import com.dev4sep.base.adminstration.role.domain.Role;
 import com.dev4sep.base.adminstration.role.domain.RoleRepository;
-import com.dev4sep.base.adminstration.role.exception.RoleDeleteAssociatedException;
+import com.dev4sep.base.adminstration.role.exception.RoleAssociatedException;
 import com.dev4sep.base.adminstration.role.exception.RoleNotFoundException;
 import com.dev4sep.base.adminstration.role.serialization.RoleDataValidator;
+import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.config.command.data.CommandProcessingBuilder;
 import com.dev4sep.base.config.command.domain.CommandProcessing;
 import com.dev4sep.base.config.command.domain.JsonCommand;
@@ -38,6 +45,10 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author YISivlay
  */
@@ -50,6 +61,8 @@ public class RoleWritePlatformServiceImpl implements RoleWritePlatformService {
     private final PlatformSecurityContext context;
     private final RoleRepository roleRepository;
     private final RoleDataValidator validator;
+    private final PermissionRepository permissionRepository;
+    private final PermissionsCommandDataValidator<PermissionsCommand> permissionsCommandDataValidator;
 
     @Override
     public CommandProcessing create(final JsonCommand command) {
@@ -103,13 +116,84 @@ public class RoleWritePlatformServiceImpl implements RoleWritePlatformService {
     }
 
     @Override
+    public CommandProcessing enableRole(final Long id) {
+        try {
+            final User login = this.context.authenticatedUser();
+            final var role = this.roleRepository.findById(id).orElseThrow(() -> new RoleNotFoundException(id));
+            role.setDisabled(false);
+            this.roleRepository.saveAndFlush(role);
+            return new CommandProcessingBuilder()
+                    .withResourceId(id)
+                    .withOfficeId(login.getOffice().getId())
+                    .build();
+        } catch (final JpaSystemException | DataIntegrityViolationException dve) {
+            throw ErrorHandler.getMappable(
+                    dve,
+                    "error.msg.unknown.data.integrity.issue",
+                    "Unknown data integrity issue with resource: " + dve.getMostSpecificCause());
+        }
+    }
+
+    @Override
+    public CommandProcessing disableRole(final Long id) {
+        try {
+            final User login = this.context.authenticatedUser();
+            final var role = this.roleRepository.findById(id).orElseThrow(() -> new RoleNotFoundException(id));
+            final Integer count = this.roleRepository.getCountOfRolesAssociatedWithUsers(id);
+            if (count > 0) {
+                throw new RoleAssociatedException("error.msg.role.associated.with.users.disabled", id);
+            }
+            role.setDisabled(true);
+            this.roleRepository.saveAndFlush(role);
+            return new CommandProcessingBuilder()
+                    .withResourceId(id)
+                    .withOfficeId(login.getOffice().getId())
+                    .build();
+        } catch (final JpaSystemException | DataIntegrityViolationException dve) {
+            throw ErrorHandler.getMappable(
+                    dve,
+                    "error.msg.unknown.data.integrity.issue",
+                    "Unknown data integrity issue with resource: " + dve.getMostSpecificCause());
+        }
+    }
+
+    @Override
+    public CommandProcessing updateRolePermissions(final Long id, final JsonCommand command) {
+        final Role role = this.roleRepository.findById(id).orElseThrow(() -> new RoleNotFoundException(id));
+
+        final var allPermissions = this.permissionRepository.findAll();
+        final var permissionsCommand = this.permissionsCommandDataValidator.commandFromApiJson(command.getJson());
+        final var commandPermissions = permissionsCommand.permissions();
+        final Map<String, Object> changes = new HashMap<>();
+        final Map<String, Boolean> changedPermissions = new HashMap<>();
+
+        commandPermissions.forEach((key, isSelected) -> {
+            final var permission = findPermissionByCode(allPermissions, key);
+            final var changed = role.updatePermission(permission, isSelected);
+            if (changed) {
+                changedPermissions.put(key, isSelected);
+            }
+        });
+        if (!changedPermissions.isEmpty()) {
+            changes.put(PermissionApiConstants.permissions, changedPermissions);
+            this.roleRepository.saveAndFlush(role);
+        }
+
+        return new CommandProcessingBuilder()
+                .withCommandId(command.commandId())
+                .withResourceId(id)
+                .with(changes)
+                .build();
+    }
+
+    @Override
     public CommandProcessing delete(final Long id) {
         try {
             final var login = this.context.authenticatedUser();
             var role = this.roleRepository.findById(id).orElseThrow(() -> new RoleNotFoundException(id));
             final var count = this.roleRepository.getCountOfRolesAssociatedWithUsers(id);
             if (count > 0) {
-                throw new RoleDeleteAssociatedException(id);
+                throw new RoleAssociatedException("error.msg.role.associated.with.users.deleted", id);
             }
             this.roleRepository.delete(role);
             return new CommandProcessingBuilder()
@@ -121,6 +205,17 @@ public class RoleWritePlatformServiceImpl implements RoleWritePlatformService {
                     "error.msg.unknown.data.integrity.issue",
                     "Unknown data integrity issue with resource: " + dve.getMostSpecificCause(), dve);
         }
+    }
+
+    private Permission findPermissionByCode(final Collection<Permission> allPermissions, final String permissionCode) {
+        if (allPermissions != null) {
+            for (final var permission : allPermissions) {
+                if (permission.hasCode(permissionCode)) {
+                    return permission;
+                }
+            }
+        }
+        throw new PermissionNotFoundException(permissionCode);
     }
 
     private RuntimeException handleDataIntegrityIssues(final JsonCommand command, final Throwable realCause, final Exception dve) {

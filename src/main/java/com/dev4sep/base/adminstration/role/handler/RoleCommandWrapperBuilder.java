@@ -39,6 +39,32 @@ public class RoleCommandWrapperBuilder extends CommandWrapperBuilder {
         return this;
     }
 
+    public CommandWrapperBuilder disableRole(final Long id) {
+        this.actionName("DISABLE");
+        this.entityName(RoleApiConstants.PERMISSIONS);
+        this.resourceId(id);
+        this.href(RoleApiConstants.PATH + "/" + id + "/disable");
+        this.json("{}");
+        return this;
+    }
+
+    public CommandWrapperBuilder enableRole(final Long id) {
+        this.actionName("ENABLE");
+        this.entityName(RoleApiConstants.PERMISSIONS);
+        this.resourceId(id);
+        this.href(RoleApiConstants.PATH + "/" + id + "/enable");
+        this.json("{}");
+        return this;
+    }
+
+    public CommandWrapperBuilder updateRolePermission(final Long id) {
+        this.actionName("PERMISSIONS");
+        this.entityName(RoleApiConstants.PERMISSIONS);
+        this.resourceId(id);
+        this.href(RoleApiConstants.PATH + "/" + id + "/permissions");
+        return this;
+    }
+
     public CommandWrapperBuilder delete(final Long id) {
         this.actionName("DELETE");
         this.entityName(RoleApiConstants.PERMISSIONS);

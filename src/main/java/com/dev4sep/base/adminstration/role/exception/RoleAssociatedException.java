@@ -20,8 +20,8 @@ import com.dev4sep.base.config.exception.AbstractPlatformDomainRuleException;
 /**
  * @author YISivlay
  */
-public class RoleDeleteAssociatedException extends AbstractPlatformDomainRuleException {
-    public RoleDeleteAssociatedException(final Long id) {
-        super("error.msg.role.associated.with.users.deleted", "Role associated with users", id);
+public class RoleAssociatedException extends AbstractPlatformDomainRuleException {
+    public RoleAssociatedException(final String errorCode, final Long id) {
+        super(errorCode, "Role associated with users", id);
     }
 }
