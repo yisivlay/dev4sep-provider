@@ -13,20 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
-
-import com.dev4sep.base.config.cache.domain.CacheType;
+package com.dev4sep.base.config.persistence;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationDomainService {
+public interface TransactionLifecycleCallback {
 
-    boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
+    default void afterBegin() {}
 
-    boolean isExternalIdAutoGenerationEnabled();
+    default void afterCommit() {}
 
-    boolean isEhcacheEnabled();
+    default void afterCompletion() {}
 
-    void updateCache(CacheType cacheType);
 }

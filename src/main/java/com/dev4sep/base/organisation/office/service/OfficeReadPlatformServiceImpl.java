@@ -15,7 +15,6 @@
  */
 package com.dev4sep.base.organisation.office.service;
 
-import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.service.Page;
@@ -24,6 +23,7 @@ import com.dev4sep.base.organisation.office.data.OfficeData;
 import com.dev4sep.base.organisation.office.exception.OfficeNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,6 +48,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
     private final PaginationHelper paginationHelper;
 
     @Override
+    @Cacheable(value = "offices", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'of')")
     public Page<OfficeData> getAllOffices(boolean includeAllOffices, RequestParameters requestParameters) {
 
         final var login = this.context.authenticatedUser();
@@ -81,6 +81,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
     }
 
     @Override
+    @Cacheable(value = "officesById", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#id)")
     public OfficeData getOneOffices(Long id) {
         try {
             final var rm = new OfficeMapper();

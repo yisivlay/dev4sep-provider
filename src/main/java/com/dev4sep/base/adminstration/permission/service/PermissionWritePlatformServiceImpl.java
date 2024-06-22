@@ -25,6 +25,8 @@ import com.dev4sep.base.config.command.domain.CommandProcessing;
 import com.dev4sep.base.config.command.domain.JsonCommand;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,7 @@ public class PermissionWritePlatformServiceImpl implements PermissionWritePlatfo
     private final PermissionsCommandDataValidator validator;
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true) })
     public CommandProcessing update(final JsonCommand command) {
         final var permissions = this.permissionRepository.findAll();
         var permissionsCommand = this.validator.commandFromApiJson(command.getJson());

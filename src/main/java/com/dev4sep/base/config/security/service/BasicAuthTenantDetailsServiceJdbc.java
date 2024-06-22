@@ -20,6 +20,7 @@ import com.dev4sep.base.config.datasource.database.tenant.TenantMapper;
 import com.dev4sep.base.config.security.exception.InvalidTenantIdentifierException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class BasicAuthTenantDetailsServiceJdbc implements BasicAuthTenantDetails
     }
 
     @Override
+    @Cacheable(value = "tenantsById")
     public PlatformTenant loadTenantById(String tenantIdentifier, boolean isReport) {
         try {
             final var rm = new TenantMapper(isReport);

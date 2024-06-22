@@ -13,20 +13,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
-
-import com.dev4sep.base.config.cache.domain.CacheType;
+package com.dev4sep.base.config.cache.api;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationDomainService {
+public class CacheApiConstants {
 
-    boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
+    private CacheApiConstants() {
 
-    boolean isExternalIdAutoGenerationEnabled();
+    }
 
-    boolean isEhcacheEnabled();
+    public static final String resourceName = "CACHE";
+    public static final String cacheType = "cacheType";
 
-    void updateCache(CacheType cacheType);
 }

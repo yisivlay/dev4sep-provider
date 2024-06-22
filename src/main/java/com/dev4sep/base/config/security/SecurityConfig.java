@@ -15,6 +15,8 @@
  */
 package com.dev4sep.base.config.security;
 
+import com.dev4sep.base.config.cache.service.CacheWritePlatformService;
+import com.dev4sep.base.config.configuration.domain.ConfigurationDomainService;
 import com.dev4sep.base.config.security.data.PlatformRequestLog;
 import com.dev4sep.base.config.security.filters.TenantAwareBasicAuthenticationFilter;
 import com.dev4sep.base.config.security.service.BasicAuthTenantDetailsService;
@@ -61,16 +63,22 @@ public class SecurityConfig {
     private final BasicAuthTenantDetailsService basicAuthTenantDetailsService;
     private final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
     private final TenantAwareJpaPlatformUserDetailsService userDetailsService;
+    private final ConfigurationDomainService configurationDomainService;
+    private final CacheWritePlatformService cacheWritePlatformService;
 
     @Autowired
     public SecurityConfig(final ServerProperties serverProperties,
                           final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
                           final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer,
-                          final TenantAwareJpaPlatformUserDetailsService userDetailsService) {
+                          final TenantAwareJpaPlatformUserDetailsService userDetailsService,
+                          final ConfigurationDomainService configurationDomainService,
+                          final CacheWritePlatformService cacheWritePlatformService) {
         this.serverProperties = serverProperties;
         this.basicAuthTenantDetailsService = basicAuthTenantDetailsService;
         this.toApiJsonSerializer = toApiJsonSerializer;
         this.userDetailsService = userDetailsService;
+        this.configurationDomainService = configurationDomainService;
+        this.cacheWritePlatformService = cacheWritePlatformService;
     }
 
     @Bean
@@ -135,7 +143,9 @@ public class SecurityConfig {
                 authenticationManagerBean(),
                 basicAuthenticationEntryPoint(),
                 basicAuthTenantDetailsService,
-                toApiJsonSerializer
+                toApiJsonSerializer,
+                configurationDomainService,
+                cacheWritePlatformService
         );
         filter.setRequestMatcher(antMatcher("/api/**"));
         return filter;

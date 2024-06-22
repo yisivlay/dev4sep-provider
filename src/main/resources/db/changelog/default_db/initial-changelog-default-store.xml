@@ -35,4 +35,5 @@
     <include file="versions/0014_update_table_user_auto_increment_id.xml" relativeToChangelogFile="true"/>
     <include file="versions/0015_create_table_user_previous_password.xml" relativeToChangelogFile="true"/>
     <include file="versions/0016_insert_permission_enable_disable_role.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0017_create_table_cache.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

@@ -13,20 +13,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.cache.service;
 
 import com.dev4sep.base.config.cache.domain.CacheType;
+
+import java.util.Map;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationDomainService {
+public interface CacheWritePlatformService {
 
-    boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
+    Map<String, Object> switchToCache(CacheType cacheType);
 
-    boolean isExternalIdAutoGenerationEnabled();
-
-    boolean isEhcacheEnabled();
-
-    void updateCache(CacheType cacheType);
 }

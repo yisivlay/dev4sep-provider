@@ -31,6 +31,8 @@ import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.stereotype.Service;
@@ -49,6 +51,7 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
     private final OfficeRepositoryWrapper officeRepositoryWrapper;
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "offices", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'of')")})
     public CommandProcessing create(JsonCommand command) {
         try {
             var login = this.context.authenticatedUser();
@@ -82,6 +85,9 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
     }
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "offices", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'of')"),
+            @CacheEvict(value = "officesById", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#id)")})
     public CommandProcessing update(final Long id, final JsonCommand command) {
         try {
             final var login = this.context.authenticatedUser();

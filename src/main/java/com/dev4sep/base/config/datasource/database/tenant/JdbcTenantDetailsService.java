@@ -18,6 +18,7 @@ package com.dev4sep.base.config.datasource.database.tenant;
 import com.dev4sep.base.config.datasource.database.domain.PlatformTenant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,7 @@ public class JdbcTenantDetailsService implements TenantDetailsService {
     }
 
     @Override
+    @Cacheable(value = "tenantsById")
     public PlatformTenant loadTenantById(String tenantIdentifier) {
         if (isBlank(tenantIdentifier)) {
             throw new IllegalArgumentException("tenantIdentifier cannot be blank");

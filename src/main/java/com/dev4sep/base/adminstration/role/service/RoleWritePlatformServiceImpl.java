@@ -39,6 +39,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -89,6 +91,7 @@ public class RoleWritePlatformServiceImpl implements RoleWritePlatformService {
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true) })
     public CommandProcessing update(final Long id, final JsonCommand command) {
         try {
             final var login = this.context.authenticatedUser();
@@ -158,6 +161,7 @@ public class RoleWritePlatformServiceImpl implements RoleWritePlatformService {
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true) })
     public CommandProcessing updateRolePermissions(final Long id, final JsonCommand command) {
         final Role role = this.roleRepository.findById(id).orElseThrow(() -> new RoleNotFoundException(id));
 

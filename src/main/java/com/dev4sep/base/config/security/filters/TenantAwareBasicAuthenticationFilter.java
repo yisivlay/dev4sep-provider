@@ -17,6 +17,9 @@ package com.dev4sep.base.config.security.filters;
 
 import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.config.ThreadLocalContextUtil;
+import com.dev4sep.base.config.cache.domain.CacheType;
+import com.dev4sep.base.config.cache.service.CacheWritePlatformService;
+import com.dev4sep.base.config.configuration.domain.ConfigurationDomainService;
 import com.dev4sep.base.config.security.data.PlatformRequestLog;
 import com.dev4sep.base.config.security.exception.InvalidTenantIdentifierException;
 import com.dev4sep.base.config.security.service.BasicAuthTenantDetailsService;
@@ -50,6 +53,8 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
 
     private final BasicAuthTenantDetailsService basicAuthTenantDetailsService;
     private final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
+    private final ConfigurationDomainService configurationDomainService;
+    private final CacheWritePlatformService cacheWritePlatformService;
 
     @Setter
     private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
@@ -57,10 +62,14 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
     public TenantAwareBasicAuthenticationFilter(final AuthenticationManager authenticationManager,
                                                 final AuthenticationEntryPoint authenticationEntryPoint,
                                                 final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
-                                                final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer) {
+                                                final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer,
+                                                final ConfigurationDomainService configurationDomainService,
+                                                final CacheWritePlatformService cacheWritePlatformService) {
         super(authenticationManager, authenticationEntryPoint);
         this.basicAuthTenantDetailsService = basicAuthTenantDetailsService;
         this.toApiJsonSerializer = toApiJsonSerializer;
+        this.configurationDomainService = configurationDomainService;
+        this.cacheWritePlatformService = cacheWritePlatformService;
     }
 
     @Override
@@ -94,6 +103,14 @@ public class TenantAwareBasicAuthenticationFilter extends BasicAuthenticationFil
                     if (!FIRST_REQUEST_PROCESSED) {
                         final String baseUrl = request.getRequestURL().toString().replace(request.getPathInfo(), "/");
                         System.setProperty("baseUrl", baseUrl);
+
+                        final boolean ehcacheEnabled = this.configurationDomainService.isEhcacheEnabled();
+                        if (ehcacheEnabled) {
+                            cacheWritePlatformService.switchToCache(CacheType.SINGLE_NODE);
+                        } else {
+                            cacheWritePlatformService.switchToCache(CacheType.NO_CACHE);
+                        }
+
                         TenantAwareBasicAuthenticationFilter.FIRST_REQUEST_PROCESSED = true;
                     }
                 }

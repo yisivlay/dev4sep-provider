@@ -35,6 +35,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -68,6 +70,7 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
     private final UserPreviousPasswordRepository userPreviewPasswordRepository;
 
     @Override
+    @Caching(evict = {@CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true)})
     public CommandProcessing create(JsonCommand command) {
         try {
             this.validator.validateForCreate(command.getJson());
@@ -97,6 +100,7 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true) })
     public CommandProcessing update(Long id, JsonCommand command) {
         try {
             this.validator.validateForUpdate(command.getJson());
@@ -136,6 +140,7 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
     }
 
     @Override
+    @Caching(evict = { @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true) })
     public CommandProcessing delete(final Long id) {
         final var user = this.userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
         if (user.isDeleted()) {

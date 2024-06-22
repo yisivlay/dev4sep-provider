@@ -13,20 +13,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.cache.domain;
 
-import com.dev4sep.base.config.cache.domain.CacheType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationDomainService {
-
-    boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
-
-    boolean isExternalIdAutoGenerationEnabled();
-
-    boolean isEhcacheEnabled();
-
-    void updateCache(CacheType cacheType);
+public interface CacheRepository extends JpaRepository<Cache, Long>, JpaSpecificationExecutor<Cache> {
 }
