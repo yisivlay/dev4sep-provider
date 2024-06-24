@@ -48,4 +48,7 @@ public final class DateUtils {
         return OffsetDateTime.now(ZoneOffset.UTC);
     }
 
+    public static ZoneId getSystemZoneId() {
+        return ZoneId.systemDefault();
+    }
 }
