@@ -28,11 +28,18 @@ public class SecurityProfileConfig {
     @Value("${dev4sep.security.basicauth.enabled}")
     private Boolean basicAuthEnabled;
 
+    @Value("${dev4sep.security.oauth.enabled}")
+    private Boolean oauthEnabled;
+
     @PostConstruct
     public void validate() {
-        if (Boolean.FALSE.equals(basicAuthEnabled)) {
+        if (!Boolean.TRUE.equals(basicAuthEnabled) && !Boolean.TRUE.equals(oauthEnabled)) {
             throw new IllegalArgumentException(
                     "Please enable 'dev4sep.security.basicauth.enabled=true' to use basic authentication.");
+        }
+        if (Boolean.TRUE.equals(basicAuthEnabled) && Boolean.TRUE.equals(oauthEnabled)) {
+            throw new IllegalArgumentException(
+                    "Too many authentication schemes selected. Please decide if you want to use basic OR OAuth2 authentication.");
         }
     }
 }

@@ -17,8 +17,10 @@ package com.dev4sep.base.config.security;
 
 import com.dev4sep.base.config.cache.service.CacheWritePlatformService;
 import com.dev4sep.base.config.configuration.domain.ConfigurationDomainService;
+import com.dev4sep.base.config.exception.mapper.OAuth2ExceptionEntryPoint;
+import com.dev4sep.base.config.security.data.CustomJwtAuthenticationToken;
 import com.dev4sep.base.config.security.data.PlatformRequestLog;
-import com.dev4sep.base.config.security.filters.TenantAwareBasicAuthenticationFilter;
+import com.dev4sep.base.config.security.filters.TenantAwareOAuth2AuthenticationFilter;
 import com.dev4sep.base.config.security.service.BasicAuthTenantDetailsService;
 import com.dev4sep.base.config.security.service.TenantAwareJpaPlatformUserDetailsService;
 import com.dev4sep.base.config.serialization.ToApiJsonSerializer;
@@ -27,25 +29,27 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.ProviderManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import java.util.Collection;
 
 import static org.springframework.security.authorization.AuthenticatedAuthorizationManager.fullyAuthenticated;
 import static org.springframework.security.authorization.AuthorizationManagers.allOf;
@@ -56,33 +60,34 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
  */
 @Configuration
 @EnableMethodSecurity
-@ConditionalOnProperty("dev4sep.security.basicauth.enabled")
-public class SecurityConfig {
+@ConditionalOnProperty("dev4sep.security.oauth.enabled")
+public class OAuth2SecurityConfig {
+    private static final JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
 
     private final ServerProperties serverProperties;
     private final BasicAuthTenantDetailsService basicAuthTenantDetailsService;
     private final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer;
+    private final CacheWritePlatformService cacheWritePlatformService;
     private final TenantAwareJpaPlatformUserDetailsService userDetailsService;
     private final ConfigurationDomainService configurationDomainService;
-    private final CacheWritePlatformService cacheWritePlatformService;
 
     @Autowired
-    public SecurityConfig(final ServerProperties serverProperties,
-                          final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
-                          final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer,
-                          final TenantAwareJpaPlatformUserDetailsService userDetailsService,
-                          final ConfigurationDomainService configurationDomainService,
-                          final CacheWritePlatformService cacheWritePlatformService) {
+    public OAuth2SecurityConfig(final ServerProperties serverProperties,
+                                final BasicAuthTenantDetailsService basicAuthTenantDetailsService,
+                                final ToApiJsonSerializer<PlatformRequestLog> toApiJsonSerializer,
+                                final CacheWritePlatformService cacheWritePlatformService,
+                                final TenantAwareJpaPlatformUserDetailsService userDetailsService,
+                                final ConfigurationDomainService configurationDomainService) {
         this.serverProperties = serverProperties;
         this.basicAuthTenantDetailsService = basicAuthTenantDetailsService;
         this.toApiJsonSerializer = toApiJsonSerializer;
+        this.cacheWritePlatformService = cacheWritePlatformService;
         this.userDetailsService = userDetailsService;
         this.configurationDomainService = configurationDomainService;
-        this.cacheWritePlatformService = cacheWritePlatformService;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher(antMatcher("/api/**")).authorizeHttpRequests((auth) -> {
                     auth.requestMatchers(antMatcher(HttpMethod.OPTIONS, "/api/**")).permitAll()
@@ -90,34 +95,22 @@ public class SecurityConfig {
                             .requestMatchers(antMatcher(HttpMethod.POST, "/api/*/self/authentication")).permitAll()
                             .requestMatchers(antMatcher("/api/**"))
                             .access(allOf(fullyAuthenticated()));
-                }).httpBasic((httpBasic) -> httpBasic.authenticationEntryPoint(basicAuthenticationEntryPoint()))
-                .cors(Customizer.withDefaults()).csrf(AbstractHttpConfigurer::disable)
+                }).csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling((e) -> e.authenticationEntryPoint(new OAuth2ExceptionEntryPoint()))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter()))
+                        .authenticationEntryPoint(new OAuth2ExceptionEntryPoint()))
                 .sessionManagement((smc) -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(tenantAwareBasicAuthenticationFilter(), SecurityContextHolderFilter.class);
+                .addFilterAfter(tenantAwareOAuth2AuthenticationFilter(), SecurityContextHolderFilter.class);
         if (serverProperties.getSsl().isEnabled()) {
             http.requiresChannel(channel -> channel.requestMatchers(antMatcher("/api/**")).requiresSecure());
         }
+
         return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-    @Bean(name = "customAuthenticationProvider")
-    public DaoAuthenticationProvider authProvider() {
-        var authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManagerBean() {
-        var providerManager = new ProviderManager(authProvider());
-        providerManager.setEraseCredentialsAfterAuthentication(false);
-        return providerManager;
     }
 
     @Bean
@@ -127,28 +120,25 @@ public class SecurityConfig {
         return basicAuthenticationEntryPoint;
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        var configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(List.of("*"));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedHeaders(List.of("*"));
-        var source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
-
-    public TenantAwareBasicAuthenticationFilter tenantAwareBasicAuthenticationFilter() throws Exception {
-        var filter = new TenantAwareBasicAuthenticationFilter(
-                authenticationManagerBean(),
-                basicAuthenticationEntryPoint(),
+    public TenantAwareOAuth2AuthenticationFilter tenantAwareOAuth2AuthenticationFilter() {
+        return new TenantAwareOAuth2AuthenticationFilter(
                 basicAuthTenantDetailsService,
                 toApiJsonSerializer,
-                configurationDomainService,
-                cacheWritePlatformService
+                cacheWritePlatformService,
+                configurationDomainService
         );
-        filter.setRequestMatcher(antMatcher("/api/**"));
-        return filter;
+    }
+
+    private Converter<Jwt, CustomJwtAuthenticationToken> authenticationConverter() {
+        return jwt -> {
+            try {
+                UserDetails user = userDetailsService.loadUserByUsername(jwt.getSubject());
+                jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+                Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
+                return new CustomJwtAuthenticationToken(jwt, authorities, user);
+            } catch (UsernameNotFoundException ex) {
+                throw new OAuth2AuthenticationException(new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN), ex);
+            }
+        };
     }
 }
