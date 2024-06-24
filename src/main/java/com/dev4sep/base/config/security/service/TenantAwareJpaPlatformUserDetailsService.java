@@ -17,6 +17,7 @@ package com.dev4sep.base.config.security.service;
 
 import com.dev4sep.base.config.security.domain.PlatformUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class TenantAwareJpaPlatformUserDetailsService implements PlatformUserDet
     }
 
     @Override
+    @Cacheable(value = "usersByUsername", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#username+'ubu')")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         final var deleted = false;

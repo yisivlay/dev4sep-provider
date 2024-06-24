@@ -113,13 +113,6 @@ public class OAuth2SecurityConfig {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
-    @Bean
-    public BasicAuthenticationEntryPoint basicAuthenticationEntryPoint() {
-        var basicAuthenticationEntryPoint = new BasicAuthenticationEntryPoint();
-        basicAuthenticationEntryPoint.setRealmName("DEV4Sep Platform API");
-        return basicAuthenticationEntryPoint;
-    }
-
     public TenantAwareOAuth2AuthenticationFilter tenantAwareOAuth2AuthenticationFilter() {
         return new TenantAwareOAuth2AuthenticationFilter(
                 basicAuthTenantDetailsService,
@@ -132,7 +125,7 @@ public class OAuth2SecurityConfig {
     private Converter<Jwt, CustomJwtAuthenticationToken> authenticationConverter() {
         return jwt -> {
             try {
-                UserDetails user = userDetailsService.loadUserByUsername(jwt.getSubject());
+                UserDetails user = userDetailsService.loadUserByUsername(jwt.getClaims().get("preferred_username").toString());
                 jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
                 Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
                 return new CustomJwtAuthenticationToken(jwt, authorities, user);
