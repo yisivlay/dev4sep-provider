@@ -15,14 +15,12 @@
  */
 package com.dev4sep.base.organisation.office.data;
 
-import com.dev4sep.base.config.domain.ExternalId;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 
 /**

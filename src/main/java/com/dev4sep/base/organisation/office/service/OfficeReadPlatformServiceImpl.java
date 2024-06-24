@@ -17,6 +17,7 @@ package com.dev4sep.base.organisation.office.service;
 
 import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.config.data.RequestParameters;
+import com.dev4sep.base.config.domain.JdbcSupport;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.config.service.PaginationHelper;
@@ -146,7 +147,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
             final var externalId = rs.getString("external_id");
             final var name = rs.getString("name");
             final var nameDecorated = rs.getString("nameDecorated");
-            final var openingDate = rs.getDate("opening_date").toLocalDate();
+            final var openingDate = JdbcSupport.getLocalDate(rs, "opening_date");
 
             return OfficeData.builder()
                     .id(id)
