@@ -68,6 +68,7 @@ public class CacheConfig {
         cacheManager.createCache("usersByUsername", defaultTemplate);
         cacheManager.createCache("tenantsById", defaultTemplate);
         cacheManager.createCache("offices", defaultTemplate);
+        cacheManager.createCache("officesForDropdown", defaultTemplate);
         cacheManager.createCache("officesById", defaultTemplate);
         cacheManager.createCache(CONFIG_BY_NAME_CACHE_NAME, defaultTemplate);
 

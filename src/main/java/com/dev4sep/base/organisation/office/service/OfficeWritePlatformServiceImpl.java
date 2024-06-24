@@ -46,12 +46,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformService {
 
-    private final PlatformSecurityContext context;
+    public final PlatformSecurityContext context;
     private final OfficeDataValidator validator;
     private final OfficeRepositoryWrapper officeRepositoryWrapper;
 
     @Override
-    @Caching(evict = {@CacheEvict(value = "offices", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'of')")})
+    @Caching(evict = {
+            @CacheEvict(value = "offices", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'of')"),
+            @CacheEvict(value = "officesForDropdown", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'ofd')")
+    })
     public CommandProcessing create(JsonCommand command) {
         try {
             var login = this.context.authenticatedUser();
@@ -87,6 +90,7 @@ public class OfficeWritePlatformServiceImpl implements OfficeWritePlatformServic
     @Override
     @Caching(evict = {
             @CacheEvict(value = "offices", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'of')"),
+            @CacheEvict(value = "officesForDropdown", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'ofd')"),
             @CacheEvict(value = "officesById", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#id)")})
     public CommandProcessing update(final Long id, final JsonCommand command) {
         try {

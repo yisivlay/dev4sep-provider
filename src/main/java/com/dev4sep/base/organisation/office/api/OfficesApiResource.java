@@ -32,6 +32,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * @author YISivlay
  */
@@ -63,6 +65,19 @@ public class OfficesApiResource {
             return this.toApiJsonSerializer.serialize(settings, offices, OfficesApiConstants.RESPONSE_PARAMETERS);
         }
         return this.toApiJsonSerializer.serialize(settings, offices.getPageItems(), OfficesApiConstants.RESPONSE_PARAMETERS);
+    }
+
+    @GET
+    @Path("/template")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    public String getTemplate(@Context final UriInfo uriInfo) {
+        this.context.authenticatedUser().validateHasReadPermission(OfficesApiConstants.PERMISSIONS);
+        OfficeData data = this.officeReadPlatformService.getTemplate();
+        List<OfficeData> allowParents = this.officeReadPlatformService.getForDropdown();
+        data = OfficeData.appendTemplate(data, allowParents);
+        final ApiRequestJsonSerializationSettings settings = apiRequestParameterHelper.process(uriInfo.getQueryParameters());
+        return this.toApiJsonSerializer.serialize(settings, data, OfficesApiConstants.RESPONSE_PARAMETERS);
     }
 
     @GET

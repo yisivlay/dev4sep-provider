@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author YISivlay
@@ -35,10 +36,23 @@ public class OfficeData implements Serializable {
     private final String name;
     private final String nameDecorated;
     private final String externalId;
-    private final Date openingDate;
+    private final LocalDate openingDate;
     private final String hierarchy;
     private final Long parentId;
     private final String parentName;
     private final Collection<OfficeData> allowedParents;
 
+    public static OfficeData appendTemplate(OfficeData data, List<OfficeData> allowParents) {
+        return OfficeData.builder()
+                .id(data.getId())
+                .name(data.getName())
+                .nameDecorated(data.getNameDecorated())
+                .externalId(data.getExternalId())
+                .openingDate(data.getOpeningDate())
+                .hierarchy(data.getHierarchy())
+                .parentId(data.getParentId())
+                .parentName(data.getParentName())
+                .allowedParents(allowParents)
+                .build();
+    }
 }

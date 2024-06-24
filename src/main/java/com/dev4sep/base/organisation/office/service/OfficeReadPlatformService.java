@@ -19,6 +19,8 @@ import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 
+import java.util.List;
+
 /**
  * @author YISivlay
  */
@@ -27,4 +29,9 @@ public interface OfficeReadPlatformService {
     Page<OfficeData> getAllOffices(final boolean includeAllOffices, final RequestParameters requestParameters);
 
     OfficeData getOneOffices(final Long id);
+
+    OfficeData getTemplate();
+
+    List<OfficeData> getForDropdown();
+
 }

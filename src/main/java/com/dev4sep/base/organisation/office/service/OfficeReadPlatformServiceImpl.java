@@ -15,10 +15,12 @@
  */
 package com.dev4sep.base.organisation.office.service;
 
+import com.dev4sep.base.adminstration.user.domain.User;
 import com.dev4sep.base.config.data.RequestParameters;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.config.service.Page;
 import com.dev4sep.base.config.service.PaginationHelper;
+import com.dev4sep.base.config.utils.DateUtils;
 import com.dev4sep.base.organisation.office.data.OfficeData;
 import com.dev4sep.base.organisation.office.exception.OfficeNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -92,6 +95,43 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
         }
     }
 
+    @Override
+    public OfficeData getTemplate() {
+        this.context.authenticatedUser();
+        return OfficeData.builder().openingDate(LocalDate.now(DateUtils.getDateTimeZoneOfTenant())).build();
+    }
+
+    @Override
+    @Cacheable(value = "officesForDropdown", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy()+'ofd')")
+    public List<OfficeData> getForDropdown() {
+        final User login = this.context.authenticatedUser();
+
+        final String hierarchy = login.getOffice().getHierarchy();
+        final String hierarchySearch = hierarchy + "%";
+
+        final OfficeDropdownMapper rm = new OfficeDropdownMapper();
+        final String sql = "select " + rm.schema() + "where o.hierarchy like ? order by o.hierarchy";
+
+        return this.jdbcTemplate.query(sql, rm, hierarchySearch);
+    }
+
+    private static final class OfficeDropdownMapper implements RowMapper<OfficeData> {
+
+        public String schema() {
+            return " o.id as id, " + nameDecoratedBaseOnHierarchy + " AS nameDecorated, o.name as name FROM tbl_office o ";
+        }
+
+        @Override
+        public OfficeData mapRow(final ResultSet rs, @SuppressWarnings("unused") final int rowNum) throws SQLException {
+
+            final Long id = rs.getLong("id");
+            final String name = rs.getString("name");
+            final String nameDecorated = rs.getString("nameDecorated");
+
+            return OfficeData.builder().id(id).name(name).nameDecorated(nameDecorated).build();
+        }
+    }
+
     private static class OfficeMapper implements RowMapper<OfficeData> {
 
         private String schema() {
@@ -106,7 +146,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
             final var externalId = rs.getString("external_id");
             final var name = rs.getString("name");
             final var nameDecorated = rs.getString("nameDecorated");
-            final var openingDate = rs.getDate("opening_date");
+            final var openingDate = rs.getDate("opening_date").toLocalDate();
 
             return OfficeData.builder()
                     .id(id)
