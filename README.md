@@ -18,9 +18,12 @@ Run the following commands:
 3. `./gradlew createDB -PdbName=dev4sep-default`
 4. `./gradlew bootRun`
 
-* NOTE: MySQL/Mariadb admin portal:
+* MySQL/Mariadb admin portal:
 > https://lcoalhost:8080
 >> username: root, password: admin@2024!
+* Keycloak portal:
+> http://localhost:9000/admin/master/console/
+>> username: admin, password: admin@2024!
 
 
 <br> Security
