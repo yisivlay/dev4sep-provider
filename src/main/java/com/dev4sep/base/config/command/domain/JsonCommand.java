@@ -25,10 +25,12 @@ import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author YISivlay
@@ -188,5 +190,13 @@ public class JsonCommand {
             isChanged = differenceExists(existingValue, workingValue);
         }
         return isChanged;
+    }
+
+    public void checkForUnsupportedParameters(final Type typeOfMap, final String json, final Set<String> requestDataParameters) {
+        this.fromApiJsonHelper.checkForUnsupportedParameters(typeOfMap, json, requestDataParameters);
+    }
+
+    public Integer integerValueSansLocaleOfParameterNamed(final String parameterName) {
+        return this.fromApiJsonHelper.extractIntegerSansLocaleNamed(parameterName, this.parsedCommand);
     }
 }

@@ -43,7 +43,7 @@ public class OfficeReadPlatformServiceImpl implements OfficeReadPlatformService 
 
     private static final String nameDecoratedBaseOnHierarchy = "concat(substring('........................................', 1, ((LENGTH(o.hierarchy) - LENGTH(REPLACE(o.hierarchy, '.', '')) - 1) * 4)), o.name)";
 
-    private final PlatformSecurityContext context;
+    public final PlatformSecurityContext context;
     private final JdbcTemplate jdbcTemplate;
     private final PaginationHelper paginationHelper;
 

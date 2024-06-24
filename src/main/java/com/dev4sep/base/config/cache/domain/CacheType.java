@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.config.cache.domain;
 
+import com.dev4sep.base.config.security.data.EnumOptionData;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -41,6 +42,10 @@ public enum CacheType {
         }
     }
 
+    public static EnumOptionData cacheEnumType(final int id) {
+        return cacheType(CacheType.fromInt(id));
+    }
+
     public static CacheType fromInt(final Integer value) {
         CacheType type = intToEnumMap.get(value);
         if (type == null) {
@@ -52,6 +57,21 @@ public enum CacheType {
     CacheType(final Integer value, final String code) {
         this.value = value;
         this.code = code;
+    }
+
+    public static EnumOptionData cacheType(final CacheType cacheType) {
+        new EnumOptionData(CacheType.INVALID.getValue().longValue(), CacheType.INVALID.getCode(), "Invalid");
+        return switch (cacheType) {
+            case INVALID ->
+                    new EnumOptionData(CacheType.INVALID.getValue().longValue(), CacheType.INVALID.getCode(), "Invalid");
+            case NO_CACHE ->
+                    new EnumOptionData(CacheType.NO_CACHE.getValue().longValue(), CacheType.NO_CACHE.getCode(), "No cache");
+            case SINGLE_NODE ->
+                    new EnumOptionData(CacheType.SINGLE_NODE.getValue().longValue(), CacheType.SINGLE_NODE.getCode(),
+                            "Single node");
+            case MULTI_NODE ->
+                    new EnumOptionData(CacheType.MULTI_NODE.getValue().longValue(), CacheType.MULTI_NODE.getCode(), "Multi node");
+        };
     }
 
     @Override

@@ -100,4 +100,8 @@ public class FromJsonHelper {
         return this.helperDelegator.extractLocalDateNamed(parameterName, element, new HashSet<>());
     }
 
+    public Integer extractIntegerSansLocaleNamed(final String parameterName, final JsonElement element) {
+        return this.helperDelegator.extractIntegerSansLocaleNamed(parameterName, element.getAsJsonObject(), new HashSet<String>());
+    }
+
 }

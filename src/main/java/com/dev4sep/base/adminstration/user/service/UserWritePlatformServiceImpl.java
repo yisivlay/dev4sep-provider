@@ -100,7 +100,9 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
     }
 
     @Override
-    @Caching(evict = { @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true) })
+    @Caching(evict = {
+            @CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true),
+            @CacheEvict(value = "userById", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#id)")})
     public CommandProcessing update(Long id, JsonCommand command) {
         try {
             this.validator.validateForUpdate(command.getJson());

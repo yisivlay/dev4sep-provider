@@ -25,5 +25,4 @@ import java.util.Map;
 public interface CacheWritePlatformService {
 
     Map<String, Object> switchToCache(CacheType cacheType);
-
 }

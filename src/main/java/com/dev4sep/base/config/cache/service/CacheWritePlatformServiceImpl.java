@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.config.cache.service;
 
+import com.dev4sep.base.config.cache.domain.CacheRepository;
 import com.dev4sep.base.config.cache.domain.CacheType;
 import com.dev4sep.base.config.configuration.domain.ConfigurationDomainService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,12 +32,15 @@ public class CacheWritePlatformServiceImpl implements CacheWritePlatformService 
 
     private final ConfigurationDomainService configurationDomainService;
     private final RuntimeDelegatingCacheManager cacheService;
+    private final CacheRepository cacheRepository;
 
     @Autowired
     public CacheWritePlatformServiceImpl(final ConfigurationDomainService configurationDomainService,
-                                         @Qualifier("runtimeDelegatingCacheManager") final RuntimeDelegatingCacheManager cacheService) {
+                                         @Qualifier("runtimeDelegatingCacheManager") final RuntimeDelegatingCacheManager cacheService,
+                                         final CacheRepository cacheRepository) {
         this.configurationDomainService = configurationDomainService;
         this.cacheService = cacheService;
+        this.cacheRepository = cacheRepository;
     }
 
     @Override
@@ -46,7 +50,10 @@ public class CacheWritePlatformServiceImpl implements CacheWritePlatformService 
         final Map<String, Object> changes = this.cacheService.switchToCache(ehCacheEnabled, cacheType);
 
         if (!changes.isEmpty()) {
-            this.configurationDomainService.updateCache(cacheType);
+            this.cacheRepository.findById(1L).ifPresent(cache -> {
+                cache.setCacheType(cacheType.getValue());
+                this.cacheRepository.save(cache);
+            });
         }
 
         return changes;

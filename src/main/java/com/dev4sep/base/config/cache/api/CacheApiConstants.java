@@ -15,6 +15,10 @@
  */
 package com.dev4sep.base.config.cache.api;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * @author YISivlay
  */
@@ -24,7 +28,13 @@ public class CacheApiConstants {
 
     }
 
-    public static final String resourceName = "CACHE";
-    public static final String cacheType = "cacheType";
+    public static final String PATH = "/caches";
+    public static final String RESOURCE = "cache";
+    public static final String PERMISSIONS = "CACHE";
+    public static final String CACHE_TYPE = "cacheType";
+
+    public static final Set<String> RESPONSE_PARAMETERS = new HashSet<>(List.of("id"));
+
+    public static final Set<String> SUPPORT_PARAMETERS = new HashSet<>(List.of(CACHE_TYPE));
 
 }

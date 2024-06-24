@@ -58,32 +58,18 @@ public class CacheConfig {
         CachingProvider provider = Caching.getCachingProvider();
         CacheManager cacheManager = provider.getCacheManager();
 
-        javax.cache.configuration.Configuration<Object, Object> defaultTemplate = Eh107Configuration.fromEhcacheCacheConfiguration(
-                CacheConfigurationBuilder
+        javax.cache.configuration.Configuration<Object, Object> defaultTemplate = Eh107Configuration
+                .fromEhcacheCacheConfiguration(CacheConfigurationBuilder
                         .newCacheConfigurationBuilder(Object.class, Object.class, ResourcePoolsBuilder.heap(10000))
                         .withExpiry(ExpiryPolicyBuilder.noExpiration()).build());
 
-        if (cacheManager.getCache("users") == null) {
-            cacheManager.createCache("users", defaultTemplate);
-        }
-        if (cacheManager.getCache("usersByUsername") == null) {
-            cacheManager.createCache("usersByUsername", defaultTemplate);
-        }
-        if (cacheManager.getCache("tenantsById") == null) {
-            cacheManager.createCache("tenantsById", defaultTemplate);
-        }
-        if (cacheManager.getCache("offices") == null) {
-            cacheManager.createCache("offices", defaultTemplate);
-        }
-        if (cacheManager.getCache("officesForDropdown") == null) {
-            cacheManager.createCache("officesForDropdown", defaultTemplate);
-        }
-        if (cacheManager.getCache("officesById") == null) {
-            cacheManager.createCache("officesById", defaultTemplate);
-        }
-        if (cacheManager.getCache(CONFIG_BY_NAME_CACHE_NAME) == null) {
-            cacheManager.createCache(CONFIG_BY_NAME_CACHE_NAME, defaultTemplate);
-        }
+        cacheManager.createCache("users", defaultTemplate);
+        cacheManager.createCache("userById", defaultTemplate);
+        cacheManager.createCache("usersByUsername", defaultTemplate);
+        cacheManager.createCache("tenantsById", defaultTemplate);
+        cacheManager.createCache("offices", defaultTemplate);
+        cacheManager.createCache("officesById", defaultTemplate);
+        cacheManager.createCache(CONFIG_BY_NAME_CACHE_NAME, defaultTemplate);
 
         //TODO - We will cache user access token here later
 

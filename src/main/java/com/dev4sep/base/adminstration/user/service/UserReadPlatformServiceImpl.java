@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -44,12 +45,13 @@ import java.util.LinkedList;
 public class UserReadPlatformServiceImpl implements UserReadPlatformService {
 
     private static final Logger log = LoggerFactory.getLogger(UserReadPlatformServiceImpl.class);
-    private final PlatformSecurityContext context;
+    public final PlatformSecurityContext context;
     private final JdbcTemplate jdbcTemplate;
     private final PaginationHelper paginationHelper;
     private final RoleReadPlatformService roleReadPlatformService;
 
     @Override
+    @Cacheable(value = "users", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#root.target.context.authenticatedUser().getOffice().getHierarchy())")
     public Page<UserData> getAllUsers(RequestParameters requestParameters) {
         final var login = this.context.authenticatedUser();
 
@@ -84,6 +86,7 @@ public class UserReadPlatformServiceImpl implements UserReadPlatformService {
     }
 
     @Override
+    @Cacheable(value = "userById", key = "T(com.dev4sep.base.config.ThreadLocalContextUtil).getTenant().getTenantIdentifier().concat(#id)")
     public UserData getOneUser(final Long id) {
         try {
             this.context.authenticatedUser();

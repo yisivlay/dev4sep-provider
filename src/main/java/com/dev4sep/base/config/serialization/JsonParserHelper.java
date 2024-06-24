@@ -335,4 +335,47 @@ public class JsonParserHelper {
         return value;
     }
 
+    public Integer extractIntegerSansLocaleNamed(final String parameterName,
+                                                 final JsonElement element,
+                                                 final Set<String> parametersPassedInRequest) {
+        Integer intValue = null;
+        if (element.isJsonObject()) {
+            final var object = element.getAsJsonObject();
+            if (object.has(parameterName) && object.get(parameterName).isJsonPrimitive()) {
+                parametersPassedInRequest.add(parameterName);
+                final var primitive = object.get(parameterName).getAsJsonPrimitive();
+                final var stringValue = primitive.getAsString();
+                if (StringUtils.isNotBlank(stringValue)) {
+                    intValue = convertToIntegerSanLocale(stringValue, parameterName);
+                }
+            }
+        }
+        return intValue;
+    }
+
+    public Integer convertToIntegerSanLocale(final String numericalValueFormatted, final String parameterName) {
+        try {
+            Integer number = null;
+            if (StringUtils.isNotBlank(numericalValueFormatted)) {
+                number = Integer.valueOf(numericalValueFormatted);
+            }
+            return number;
+        } catch (final NumberFormatException e) {
+            final List<ApiParameterError> dataValidationErrors = new ArrayList<>();
+            final ApiParameterError error = ApiParameterError.parameterErrorWithValue(
+                    "validation.msg.invalid.integer",
+                    "The parameter `" + parameterName + "` has value: " + numericalValueFormatted + " which is invalid integer.",
+                    parameterName,
+                    numericalValueFormatted,
+                    numericalValueFormatted
+            );
+            dataValidationErrors.add(error);
+            throw new PlatformApiDataValidationException(
+                    "validation.msg.validation.errors.exist",
+                    "Validation errors exist.",
+                    dataValidationErrors,
+                    e
+            );
+        }
+    }
 }

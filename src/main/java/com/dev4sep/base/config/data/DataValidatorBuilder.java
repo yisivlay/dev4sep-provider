@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -229,5 +230,21 @@ public class DataValidatorBuilder {
         if (!dataValidationErrors.isEmpty()) {
             throw new PlatformApiDataValidationException(dataValidationErrors);
         }
+    }
+
+    public DataValidatorBuilder isOneOfTheseValues(final Object... values) {
+        if (this.value == null && this.ignoreNullValue) {
+            return this;
+        }
+        final List<Object> rawValuesList = Arrays.asList(values);
+        if (this.value == null || !rawValuesList.contains(this.value)) {
+            final List<String> valuesList = Arrays.stream(values).map(Object::toString).toList();
+            final var valuesListStr = String.join(", ", valuesList);
+            var errorCode = "validation.msg." + this.resource + "." + this.parameter + ".is.not.one.of.expected.enumerations";
+            var message = "The parameter `" + this.parameter + "` must be one of [ " + valuesListStr + " ] " + ".";
+            final ApiParameterError error = ApiParameterError.parameterError(errorCode, message, this.parameter, this.value, values);
+            this.dataValidationErrors.add(error);
+        }
+        return this;
     }
 }

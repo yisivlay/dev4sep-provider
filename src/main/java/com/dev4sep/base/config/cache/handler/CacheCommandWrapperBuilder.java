@@ -13,17 +13,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.cache.handler;
+
+import com.dev4sep.base.config.cache.api.CacheApiConstants;
+import com.dev4sep.base.config.command.domain.CommandWrapperBuilder;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationDomainService {
+public class CacheCommandWrapperBuilder extends CommandWrapperBuilder {
 
-    boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
-
-    boolean isExternalIdAutoGenerationEnabled();
-
-    boolean isEhcacheEnabled();
+    public CommandWrapperBuilder update() {
+        this.actionName("UPDATE");
+        this.entityName(CacheApiConstants.PERMISSIONS);
+        this.resourceId(null);
+        this.href(CacheApiConstants.PATH);
+        return this;
+    }
 
 }

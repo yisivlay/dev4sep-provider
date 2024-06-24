@@ -16,6 +16,7 @@
 package com.dev4sep.base.config.cache.service;
 
 import com.dev4sep.base.config.cache.api.CacheApiConstants;
+import com.dev4sep.base.config.cache.data.CacheData;
 import com.dev4sep.base.config.cache.domain.CacheType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +27,7 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author YISivlay
@@ -69,13 +67,13 @@ public class RuntimeDelegatingCacheManager implements CacheManager, Initializing
             }
             case NO_CACHE -> {
                 if (!noCacheEnabled) {
-                    changes.put(CacheApiConstants.cacheType, cacheType.getValue());
+                    changes.put(CacheApiConstants.CACHE_TYPE, cacheType.getValue());
                 }
                 currentCacheManager = defaultCacheManager;
             }
             case SINGLE_NODE -> {
                 if (!ehcacheEnabled) {
-                    changes.put(CacheApiConstants.cacheType, cacheType.getValue());
+                    changes.put(CacheApiConstants.CACHE_TYPE, cacheType.getValue());
                     clearEhCache();
                 }
                 currentCacheManager = ehCacheManager;
@@ -102,5 +100,18 @@ public class RuntimeDelegatingCacheManager implements CacheManager, Initializing
                 log.warn("NullPointerException occurred", npe);
             }
         }
+    }
+
+    public List<CacheData> getAll() {
+        final boolean noCacheEnabled = currentCacheManager == defaultCacheManager;
+        final boolean ehCacheEnabled = currentCacheManager == ehCacheManager;
+
+        final var noCacheType = CacheType.cacheType(CacheType.NO_CACHE);
+        final var singleNodeCacheType = CacheType.cacheType(CacheType.SINGLE_NODE);
+
+        final var noCache = CacheData.instance(noCacheType, noCacheEnabled);
+        final var singleNodeCache = CacheData.instance(singleNodeCacheType, ehCacheEnabled);
+
+        return Arrays.asList(noCache, singleNodeCache);
     }
 }

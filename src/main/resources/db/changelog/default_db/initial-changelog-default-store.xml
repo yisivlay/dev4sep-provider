@@ -36,4 +36,5 @@
     <include file="versions/0015_create_table_user_previous_password.xml" relativeToChangelogFile="true"/>
     <include file="versions/0016_insert_permission_enable_disable_role.xml" relativeToChangelogFile="true"/>
     <include file="versions/0017_create_table_cache.xml" relativeToChangelogFile="true"/>
+    <include file="versions/0018_insert_permission_read_update_cache.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

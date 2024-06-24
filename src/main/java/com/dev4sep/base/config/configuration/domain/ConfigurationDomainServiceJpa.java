@@ -19,7 +19,6 @@ import com.dev4sep.base.adminstration.permission.domain.PermissionRepository;
 import com.dev4sep.base.adminstration.permission.exception.PermissionNotFoundException;
 import com.dev4sep.base.config.cache.domain.Cache;
 import com.dev4sep.base.config.cache.domain.CacheRepository;
-import com.dev4sep.base.config.cache.domain.CacheType;
 import com.dev4sep.base.config.configuration.data.ConfigurationData;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -66,14 +65,6 @@ public class ConfigurationDomainServiceJpa implements ConfigurationDomainService
     @Override
     public boolean isEhcacheEnabled() {
         return this.cacheRepository.findById(1L).map(Cache::isEhcacheEnabled).orElseThrow();
-    }
-
-    @Override
-    public void updateCache(CacheType cacheType) {
-        this.cacheRepository.findById(1L).ifPresent(cache -> {
-            cache.setCacheType(cacheType.getValue());
-            this.cacheRepository.save(cache);
-        });
     }
 
     @NotNull

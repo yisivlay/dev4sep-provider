@@ -13,17 +13,28 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package com.dev4sep.base.config.configuration.domain;
+package com.dev4sep.base.config.cache.data;
+
+import com.dev4sep.base.config.security.data.EnumOptionData;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * @author YISivlay
  */
-public interface ConfigurationDomainService {
+@Data
+@NoArgsConstructor
+@Accessors(chain = true)
+public class CacheData {
 
-    boolean isMakerCheckerEnabledForTask(String taskPermissionCode);
+    @SuppressWarnings("unused")
+    private EnumOptionData cacheType;
+    @SuppressWarnings("unused")
+    private boolean enabled;
 
-    boolean isExternalIdAutoGenerationEnabled();
-
-    boolean isEhcacheEnabled();
+    public static CacheData instance(final EnumOptionData cacheType, final boolean enabled) {
+        return new CacheData().setCacheType(cacheType).setEnabled(enabled);
+    }
 
 }
