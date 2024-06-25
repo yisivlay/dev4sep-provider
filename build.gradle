@@ -16,7 +16,7 @@
 
 buildscript {
 	ext {
-		springBootVersion = '3.2.6'
+		springBootVersion = '3.3.1'
 	}
 	repositories {
 		mavenCentral()
@@ -42,8 +42,8 @@ apply plugin: 'io.spring.dependency-management'
 group = 'com.dev4sep'
 
 java {
-	sourceCompatibility = '17'
-	targetCompatibility = '17'
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 repositories {
@@ -141,7 +141,7 @@ tasks.register('setBlankPassword') {
 	doLast {
 		def sql = Sql.newInstance('jdbc:mariadb://localhost:3305/', mariaDBUser, mariaDBPassword, 'org.mariadb.jdbc.Driver')
 		sql.execute('USE `dev4sep-tenants`')
-		sql.execute('UPDATE dev4sep-tenants.tenants SET schema_server = \'localhost\', schema_server_port = \'3305\', schema_username = \'root\', schema_password = \'admin@2024!\' WHERE id=1;')
+		sql.execute('UPDATE `dev4sep-tenants`.tenants SET schema_server = \'localhost\', schema_server_port = \'3305\', schema_username = \'root\', schema_password = \'admin@2024!\' WHERE id=1;')
 	}
 }
 // End configuration for Database tasks
