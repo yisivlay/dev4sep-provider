@@ -117,7 +117,7 @@ public class TenantAwareOAuth2AuthenticationFilter extends GenericFilterBean {
             ThreadLocalContextUtil.reset();
             task.stop();
             final PlatformRequestLog logRequest = PlatformRequestLog.from(task, request);
-            log.debug("{}", toApiJsonSerializer.serialize(logRequest));
+            log.info("{}", toApiJsonSerializer.serialize(logRequest));
         }
     }
 }
