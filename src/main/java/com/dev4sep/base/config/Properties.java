@@ -102,12 +102,24 @@ public class Properties {
     @Setter
     public static class SecurityProperties {
         private SecurityBasicAuth basicauth;
+        private SecurityOAuth2 oauth;
     }
 
     @Getter
     @Setter
     public static class SecurityBasicAuth {
+        private boolean enabled;
+    }
 
+    @Getter
+    @Setter
+    public static class SecurityOAuth2 {
+        private boolean enabled;
+    }
+
+    @Getter
+    @Setter
+    public static class SecurityOAuth2Keycloak {
         private boolean enabled;
     }
 }
