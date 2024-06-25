@@ -18,6 +18,7 @@ package com.dev4sep.base.config;
 import com.dev4sep.base.config.datasource.RoutingDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
@@ -28,6 +29,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 public class JdbcConfig {
 
     @Bean
+    @Primary
     public JdbcTemplate jdbcTemplate(RoutingDataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
