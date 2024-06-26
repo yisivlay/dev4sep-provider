@@ -22,6 +22,7 @@ import com.dev4sep.base.config.security.data.CustomJwtAuthenticationToken;
 import com.dev4sep.base.config.security.data.PlatformRequestLog;
 import com.dev4sep.base.config.security.filters.TenantAwareOAuth2AuthenticationFilter;
 import com.dev4sep.base.config.security.service.BasicAuthTenantDetailsService;
+import com.dev4sep.base.config.security.service.OAuth2RefreshTokenGeneratorImpl;
 import com.dev4sep.base.config.security.service.TenantAwareJpaPlatformUserDetailsService;
 import com.dev4sep.base.config.serialization.ToApiJsonSerializer;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -41,19 +42,21 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
@@ -63,6 +66,8 @@ import java.security.KeyPairGenerator;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.springframework.security.authorization.AuthenticatedAuthorizationManager.fullyAuthenticated;
@@ -105,6 +110,8 @@ public class OAuth2SecurityConfig {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
         http.with(authorizationServerConfigurer, Customizer.withDefaults());
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .tokenGenerator(tokenGenerator())
+                .authorizationServerSettings(authorizationServerSettings())
                 .oidc(Customizer.withDefaults());
         http
                 .securityMatcher(antMatcher("/api/**")).authorizeHttpRequests((auth) -> {
@@ -127,6 +134,14 @@ public class OAuth2SecurityConfig {
     }
 
     @Bean
+    public OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator() {
+        var jwtGenerator = new JwtGenerator(new NimbusJwtEncoder(jwkSource()));
+        jwtGenerator.setJwtCustomizer(customizer());
+        OAuth2TokenGenerator<OAuth2RefreshToken> refreshTokenGenerator = new OAuth2RefreshTokenGeneratorImpl();
+        return new DelegatingOAuth2TokenGenerator(jwtGenerator, refreshTokenGenerator);
+    }
+
+    @Bean
     public JWKSource<SecurityContext> jwkSource() {
         KeyPair keyPair = generateRsaKey();
         RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
@@ -145,13 +160,38 @@ public class OAuth2SecurityConfig {
     }
 
     @Bean
-    public AuthorizationServerSettings authorizationServerSettings() {
-        return AuthorizationServerSettings.builder().build();
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    public AuthorizationServerSettings authorizationServerSettings() {
+        return AuthorizationServerSettings.builder()
+                .issuer("https://127.0.0.1:8444")
+                .authorizationEndpoint("/oauth2/v1/authorize")
+                .deviceAuthorizationEndpoint("/oauth2/v1/device_authorization")
+                .deviceVerificationEndpoint("/oauth2/v1/device_verification")
+                .tokenEndpoint("/oauth2/v1/token")
+                .tokenIntrospectionEndpoint("/oauth2/v1/introspect")
+                .tokenRevocationEndpoint("/oauth2/v1/revoke")
+                .jwkSetEndpoint("/oauth2/v1/jwks")
+                .oidcLogoutEndpoint("/connect/v1/logout")
+                .oidcUserInfoEndpoint("/connect/v1/userinfo")
+                .oidcClientRegistrationEndpoint("/connect/v1/register")
+                .build();
+    }
+
+    private OAuth2TokenCustomizer<JwtEncodingContext> customizer() {
+        return context -> {
+            if (context.getTokenType().getValue().equals(OidcParameterNames.ID_TOKEN)) {
+                Authentication principal = context.getPrincipal();
+                Set<String> authorities = new HashSet<>();
+                for (GrantedAuthority authority : principal.getAuthorities()) {
+                    authorities.add(authority.getAuthority());
+                }
+                context.getClaims().claim("authorities", authorities);
+            }
+        };
     }
 
     public TenantAwareOAuth2AuthenticationFilter tenantAwareOAuth2AuthenticationFilter() {

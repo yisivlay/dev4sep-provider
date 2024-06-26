@@ -95,7 +95,7 @@ public class TenantAwareOAuth2AuthenticationFilter extends GenericFilterBean {
                 }
                 if (!FIRST_PROCESSED_REQUEST.get()) {
                     final String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(),
-                            request.getContextPath() + "/api/v1");
+                            request.getContextPath());
                     System.setProperty("baseUrl", baseUrl);
 
                     final boolean ehcacheEnabled = configurationDomainService.isEhcacheEnabled();
