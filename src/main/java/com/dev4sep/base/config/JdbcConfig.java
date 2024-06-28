@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 /**
  * @author YISivlay
@@ -31,6 +32,17 @@ public class JdbcConfig {
     @Bean
     @Primary
     public JdbcTemplate jdbcTemplate(RoutingDataSource dataSource) {
+        return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public JdbcTemplate secondDatasource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.mariadb.jdbc.Driver");
+        dataSource.setUrl("jdbc:mariadb://localhost:3305/dev4sep-default");
+        dataSource.setUsername("root");
+        dataSource.setPassword("admin@2024!");
+
         return new JdbcTemplate(dataSource);
     }
 

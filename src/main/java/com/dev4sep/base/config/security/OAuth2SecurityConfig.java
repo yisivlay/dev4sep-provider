@@ -15,6 +15,7 @@
  */
 package com.dev4sep.base.config.security;
 
+import com.dev4sep.base.config.JdbcConfig;
 import com.dev4sep.base.config.cache.service.CacheWritePlatformService;
 import com.dev4sep.base.config.configuration.domain.ConfigurationDomainService;
 import com.dev4sep.base.config.exception.mapper.OAuth2ExceptionEntryPoint;
@@ -22,7 +23,6 @@ import com.dev4sep.base.config.security.data.CustomJwtAuthenticationToken;
 import com.dev4sep.base.config.security.data.PlatformRequestLog;
 import com.dev4sep.base.config.security.filters.TenantAwareOAuth2AuthenticationFilter;
 import com.dev4sep.base.config.security.service.BasicAuthTenantDetailsService;
-import com.dev4sep.base.config.security.service.OAuth2RefreshTokenGeneratorImpl;
 import com.dev4sep.base.config.security.service.TenantAwareJpaPlatformUserDetailsService;
 import com.dev4sep.base.config.serialization.ToApiJsonSerializer;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -30,6 +30,7 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -49,13 +50,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.*;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.authorization.client.JdbcRegisteredClientRepository;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.settings.ClientSettings;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
@@ -77,6 +83,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 /**
  * @author YISivlay
  */
+@Slf4j
 @Configuration
 @EnableMethodSecurity
 @ConditionalOnProperty("dev4sep.security.oauth.enabled")
@@ -110,8 +117,9 @@ public class OAuth2SecurityConfig {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = new OAuth2AuthorizationServerConfigurer();
         http.with(authorizationServerConfigurer, Customizer.withDefaults());
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
-                .tokenGenerator(tokenGenerator())
+                .registeredClientRepository(registeredClientRepository())
                 .authorizationServerSettings(authorizationServerSettings())
+                .tokenGenerator(tokenGenerator())
                 .oidc(Customizer.withDefaults());
         http
                 .securityMatcher(antMatcher("/api/**")).authorizeHttpRequests((auth) -> {
@@ -122,8 +130,7 @@ public class OAuth2SecurityConfig {
                             .access(allOf(fullyAuthenticated()));
                 }).csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling((e) -> e.authenticationEntryPoint(new OAuth2ExceptionEntryPoint()))
-                .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(authenticationConverter()))
-                        .authenticationEntryPoint(new OAuth2ExceptionEntryPoint()))
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .sessionManagement((smc) -> smc.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterAfter(tenantAwareOAuth2AuthenticationFilter(), SecurityContextHolderFilter.class);
         if (serverProperties.getSsl().isEnabled()) {
@@ -136,9 +143,10 @@ public class OAuth2SecurityConfig {
     @Bean
     public OAuth2TokenGenerator<? extends OAuth2Token> tokenGenerator() {
         var jwtGenerator = new JwtGenerator(new NimbusJwtEncoder(jwkSource()));
+        OAuth2AccessTokenGenerator accessTokenGenerator = new OAuth2AccessTokenGenerator();
+        OAuth2RefreshTokenGenerator refreshTokenGenerator = new OAuth2RefreshTokenGenerator();
         jwtGenerator.setJwtCustomizer(customizer());
-        OAuth2TokenGenerator<OAuth2RefreshToken> refreshTokenGenerator = new OAuth2RefreshTokenGeneratorImpl();
-        return new DelegatingOAuth2TokenGenerator(jwtGenerator, refreshTokenGenerator);
+        return new DelegatingOAuth2TokenGenerator(jwtGenerator, accessTokenGenerator, refreshTokenGenerator);
     }
 
     @Bean
@@ -168,17 +176,34 @@ public class OAuth2SecurityConfig {
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
                 .issuer("https://127.0.0.1:8444")
-                .authorizationEndpoint("/oauth2/v1/authorize")
-                .deviceAuthorizationEndpoint("/oauth2/v1/device_authorization")
-                .deviceVerificationEndpoint("/oauth2/v1/device_verification")
-                .tokenEndpoint("/oauth2/v1/token")
-                .tokenIntrospectionEndpoint("/oauth2/v1/introspect")
-                .tokenRevocationEndpoint("/oauth2/v1/revoke")
-                .jwkSetEndpoint("/oauth2/v1/jwks")
-                .oidcLogoutEndpoint("/connect/v1/logout")
-                .oidcUserInfoEndpoint("/connect/v1/userinfo")
-                .oidcClientRegistrationEndpoint("/connect/v1/register")
+                .authorizationEndpoint("/api/oauth2/authorize")
+                .tokenEndpoint("/api/oauth2/token")
                 .build();
+    }
+
+    @Bean
+    RegisteredClientRepository registeredClientRepository() {
+        JdbcConfig jdbcConfig = new JdbcConfig();
+        JdbcRegisteredClientRepository registeredClientRepository = new JdbcRegisteredClientRepository(jdbcConfig.secondDatasource());
+        if (registeredClientRepository.findByClientId("dev4sep-client") == null) {
+            RegisteredClient client = RegisteredClient.withId(UUID.randomUUID().toString())
+                    .clientId("dev4sep-client")
+                    .clientSecret("{bcrypt}$2a$10$ULfH0rQn.JdnTbG466diNO9vBJxd11jdhRPIWLi4vpt58HtDcPJAm")
+                    .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+                    .authorizationGrantTypes(grantTypes -> grantTypes.addAll(Set.of(
+                            AuthorizationGrantType.CLIENT_CREDENTIALS,
+                            AuthorizationGrantType.AUTHORIZATION_CODE,
+                            AuthorizationGrantType.REFRESH_TOKEN)))
+                    .redirectUri("https://127.0.0.1:8444/dev4sep/api/oauth2/authorize")
+                    .scope(OidcScopes.OPENID)
+                    .scope(OidcScopes.PROFILE)
+                    .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
+                    .build();
+
+            registeredClientRepository.save(client);
+            log.info("New registered client {}", client);
+        }
+        return registeredClientRepository;
     }
 
     private OAuth2TokenCustomizer<JwtEncodingContext> customizer() {
