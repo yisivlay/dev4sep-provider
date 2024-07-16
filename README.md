@@ -12,6 +12,9 @@ A Platform for RESTfull API Microservice with Spring Boot 3.2.6 and Java 17
 Project on repository: https://github.com/yisivlay/dev4sep-provider.git
 >git clone https://github.com/yisivlay/dev4sep-provider.git
 
+Docker pull images: Database and Keycloak
+>docker pull sivlayyi/dev4sep-provider:latest 
+
 Run the following commands:
 1. `docker compose up`
 2. `./gradlew createDB -PdbName=dev4sep-tenants`
