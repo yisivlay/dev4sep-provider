@@ -1,5 +1,5 @@
 # DEV4Sep
-A Platform for RESTfull API Microservice with Spring Boot 3.2.6 and Java 17
+A Platform for RESTfull API Microservice with Spring Boot 3.3.1 and Java 21
 
 ## Requirements
 * Spring Boot 3.3.1
