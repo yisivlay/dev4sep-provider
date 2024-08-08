@@ -27,6 +27,7 @@ import com.dev4sep.base.config.command.domain.CommandProcessing;
 import com.dev4sep.base.config.command.domain.JsonCommand;
 import com.dev4sep.base.config.exception.ErrorHandler;
 import com.dev4sep.base.config.exception.PlatformDataIntegrityException;
+import com.dev4sep.base.config.keycloak.service.KeycloakService;
 import com.dev4sep.base.config.security.exception.PasswordPreviouslyUsedException;
 import com.dev4sep.base.config.security.service.PlatformSecurityContext;
 import com.dev4sep.base.organisation.office.domain.OfficeRepositoryWrapper;
@@ -68,6 +69,7 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
     private final OfficeRepositoryWrapper officeRepositoryWrapper;
     private final PlatformPasswordEncoder platformPasswordEncoder;
     private final UserPreviousPasswordRepository userPreviewPasswordRepository;
+    private final KeycloakService keycloakService;
 
     @Override
     @Caching(evict = {@CacheEvict(value = "users", allEntries = true), @CacheEvict(value = "usersByUsername", allEntries = true)})
@@ -78,12 +80,13 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
             final var officeId = command.longValueOfParameterNamed(UserApiConstants.officeId);
             final var office = this.officeRepositoryWrapper.findOneWithNotFoundDetection(officeId);
 
+            final var rawPassword = command.stringValueOfParameterNamed(UserApiConstants.password);
             final var roles = command.arrayValueOfParameterNamed(UserApiConstants.roles);
             final var allRoles = assembleSetOfRoles(roles);
 
             var user = User.fromJson(office, allRoles, command);
 
-            this.userDomainService.create(user);
+            this.userDomainService.create(user, rawPassword);
 
             return new CommandProcessingBuilder()
                     .withCommandId(command.commandId())
@@ -122,7 +125,6 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
                     user.setRoles(roles);
                 }
                 this.userRepository.saveAndFlush(user);
-
                 if (currentPasswordToSaveAsPreview != null) {
                     this.userPreviewPasswordRepository.save(currentPasswordToSaveAsPreview);
                 }
@@ -148,8 +150,9 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
         if (user.isDeleted()) {
             throw new UserNotFoundException(id);
         }
-        user.delete();
-        this.userRepository.save(user);
+        user.clearRole();
+        this.userRepository.delete(user);
+        this.keycloakService.deleteUser(user);
         return new CommandProcessingBuilder()
                 .withResourceId(id)
                 .withOfficeId(user.getOffice().getId())

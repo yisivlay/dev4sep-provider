@@ -1,26 +1,38 @@
-version: '3.1'
+version: '3.8'
 
 services:
-
   db:
     image: mariadb
     restart: always
+    volumes:
+      - ./mariadb:/var/lib/mariadb/data
     ports:
-      - '3305:3306'
+      - '3307:3306'
     expose:
-      - 3305
+      - 3307
     environment:
       MARIADB_ROOT_PASSWORD: admin@2024!
+    healthcheck:
+      test: [ "CMD", "/usr/local/bin/healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized" ]
+      interval: 3s
+      timeout: 3s
+      retries: 20
 
   adminer:
-    image: adminer
+    image: adminer:latest
     restart: always
     ports:
-      - '8080:8080'
+      - '9001:8080'
+    expose:
+      - 9001
 
   keycloak:
-    image: quay.io/keycloak/keycloak:25.0.1
+    image: quay.io/keycloak/keycloak:25.0.0
     container_name: keycloak
+    restart: always
+    command: start-dev
+    ports:
+      - '9000:8080'
     environment:
       KC_HOSTNAME: localhost
       KC_HOSTNAME_PORT: 8080
@@ -31,9 +43,6 @@ services:
       KC_HEALTH_ENABLED: true
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin@2024!
-    command: start-dev
-    ports:
-      - '9000:8080'
+      KC_FEATURES: token-exchange,admin-fine-grained-authz
     expose:
       - 9000
-
