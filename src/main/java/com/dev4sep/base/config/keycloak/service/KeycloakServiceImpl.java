@@ -15,7 +15,6 @@
  */
 package com.dev4sep.base.config.keycloak.service;
 
-import com.dev4sep.base.adminstration.role.domain.Role;
 import com.dev4sep.base.adminstration.user.domain.User;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author YISivlay
@@ -69,10 +67,6 @@ public class KeycloakServiceImpl implements KeycloakService {
             throw new RuntimeException("Status code " + response.getStatus());
         }
         log.info("New user has been created");
-
-        String roleName = String.valueOf(user.getRoles().stream().map(Role::getName).findFirst());
-        assignRole(user, roleName);
-        log.info("New user has been assigned to role {}", roleName);
     }
 
     private static @NotNull UserRepresentation getUserRepresentation(User user, String rawPassword) {

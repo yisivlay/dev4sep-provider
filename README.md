@@ -31,12 +31,12 @@ Manual Database Connection:
 ---------------------------
 ```
 spring.datasource.hikari.driverClassName=org.mariadb.jdbc.Driver
-spring.datasource.hikari.jdbcUrl=jdbc:mariadb://localhost:3305/dev4sep-tenants
+spring.datasource.hikari.jdbcUrl=jdbc:mariadb://localhost:3307/dev4sep-tenants
 spring.datasource.hikari.username=root
 spring.datasource.hikari.password=admin@2024!
 
 dev4sep.tenant.host=localhost
-dev4sep.tenant.port=3305
+dev4sep.tenant.port=3307
 dev4sep.tenant.username=root
 dev4sep.tenant.password=admin@2024!
 dev4sep.tenant.name=dev4sep-default
