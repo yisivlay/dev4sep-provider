@@ -428,4 +428,8 @@ public class User extends AbstractPersistableCustom implements PlatformUser {
         this.email = getId() + "_DELETED_" + this.email;
         this.roles.clear();
     }
+
+    public void clearRole() {
+        this.roles.clear();
+    }
 }

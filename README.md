@@ -12,7 +12,7 @@ A Platform for RESTfull API Microservice with Spring Boot 3.3.1 and Java 21
 Project on repository: https://github.com/yisivlay/dev4sep-provider.git
 >git clone https://github.com/yisivlay/dev4sep-provider.git
 
-Docker images: Database and Keycloak
+Docker pull images: Database and Keycloak
 >docker pull sivlayyi/dev4sep-provider:latest 
 
 Run the following commands:
@@ -26,22 +26,6 @@ MySQL/Mariadb admin portal:
 https://lcoalhost:8080
 > username: root, password: admin@2024!
 ----------------------------
-
-Manual Database Connection:
----------------------------
-```
-spring.datasource.hikari.driverClassName=org.mariadb.jdbc.Driver
-spring.datasource.hikari.jdbcUrl=jdbc:mariadb://localhost:3305/dev4sep-tenants
-spring.datasource.hikari.username=root
-spring.datasource.hikari.password=admin@2024!
-
-dev4sep.tenant.host=localhost
-dev4sep.tenant.port=3305
-dev4sep.tenant.username=root
-dev4sep.tenant.password=admin@2024!
-dev4sep.tenant.name=dev4sep-default
-```
-
 Keycloak portal:
 ----------------
 http://localhost:9000/admin/master/console/

@@ -22,6 +22,6 @@ import com.dev4sep.base.adminstration.user.domain.User;
  */
 public interface UserDomainService {
 
-    void create(final User user);
+    void create(final User user, final String rawPassword);
 
 }

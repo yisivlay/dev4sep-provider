@@ -46,7 +46,10 @@ dependencies {
             'jakarta.interceptor:jakarta.interceptor-api:2.2.0',
             'org.springframework:spring-context-support',
             'javax.cache:cache-api',
-            'org.ehcache:ehcache:3.10.8'
+            'org.ehcache:ehcache:3.10.8',
+            'org.keycloak:keycloak-admin-client:25.0.0',
+            'org.jboss.resteasy:resteasy-client:6.2.5.Final',
+            'org.jboss.resteasy:resteasy-jackson2-provider:6.2.5.Final'
     )
     implementation('org.springframework.boot:spring-boot-starter-jersey') {
         exclude group: 'org.glassfish.hk2.external', module: 'aopalliance-repackaged'
