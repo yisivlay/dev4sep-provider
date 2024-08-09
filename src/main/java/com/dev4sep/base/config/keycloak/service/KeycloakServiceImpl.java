@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -97,15 +98,31 @@ public class KeycloakServiceImpl implements KeycloakService {
     public void deleteUser(User user) {
         UsersResource usersResource = getUsersResource();
         String userId = getUserId(user);
-        usersResource.delete(userId);
+        if (userId != null) {
+            usersResource.delete(userId);
+        }
+    }
+
+    @Override
+    public void updatePassword(User user) {
+        UsersResource usersResource = getUsersResource();
+        String userId = getUserId(user);
+        if (userId != null) {
+            UserResource userResource = usersResource.get(userId);
+            List<String> actions = new ArrayList<>();
+            actions.add("UPDATE_PASSWORD");
+            userResource.executeActionsEmail(actions);
+        }
     }
 
     @Override
     public void forgotPassword(User user) {
         UsersResource usersResource = getUsersResource();
         String userId = getUserId(user);
-        UserResource userResource = usersResource.get(userId);
-        userResource.executeActionsEmail(List.of("UPDATE_PASSWORD"));
+        if (userId != null) {
+            UserResource userResource = usersResource.get(userId);
+            userResource.executeActionsEmail(List.of("UPDATE_PASSWORD"));
+        }
 
     }
 
@@ -113,7 +130,11 @@ public class KeycloakServiceImpl implements KeycloakService {
     public UserResource getUser(User user) {
         UsersResource usersResource = getUsersResource();
         String userId = getUserId(user);
-        return usersResource.get(userId);
+        UserResource userResource = null;
+        if (userId != null) {
+            userResource = usersResource.get(userId);
+        }
+        return userResource;
     }
 
     @Override

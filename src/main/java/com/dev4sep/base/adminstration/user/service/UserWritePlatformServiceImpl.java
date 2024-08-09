@@ -124,6 +124,9 @@ public class UserWritePlatformServiceImpl implements UserWritePlatformService {
                     final var roles = assembleSetOfRoles(roleIds);
                     user.setRoles(roles);
                 }
+                if (changes.containsKey(UserApiConstants.password)) {
+                    this.keycloakService.updatePassword(user);
+                }
                 this.userRepository.saveAndFlush(user);
                 if (currentPasswordToSaveAsPreview != null) {
                     this.userPreviewPasswordRepository.save(currentPasswordToSaveAsPreview);

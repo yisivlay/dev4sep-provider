@@ -33,6 +33,8 @@ public interface KeycloakService {
 
     void deleteUser(User user);
 
+    void updatePassword(User user);
+
     void forgotPassword(User user);
 
     UserResource getUser(User user);
