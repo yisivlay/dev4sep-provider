@@ -26,7 +26,8 @@ buildscript {
 		classpath(
 				"org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}",
 				"gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.16.1",
-				"com.github.jk1:gradle-license-report:2.8"
+				"com.github.jk1:gradle-license-report:2.8",
+				"io.swagger.core.v3:swagger-gradle-plugin:2.2.22"
 		)
 	}
 }
@@ -38,6 +39,7 @@ apply plugin: 'idea'
 apply plugin: 'license'
 apply plugin: 'com.github.jk1.dependency-license-report'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'io.swagger.core.v3.swagger-gradle-plugin'
 
 group = 'com.dev4sep'
 

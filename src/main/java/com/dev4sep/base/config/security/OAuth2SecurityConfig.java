@@ -93,6 +93,8 @@ public class OAuth2SecurityConfig {
                     auth.requestMatchers(antMatcher(HttpMethod.OPTIONS, "/api/**")).permitAll()
                             .requestMatchers(antMatcher(HttpMethod.POST, "/api/*/authentication")).permitAll()
                             .requestMatchers(antMatcher(HttpMethod.POST, "/api/*/self/authentication")).permitAll()
+                            .requestMatchers(antMatcher("/api-docs/**")).permitAll()
+                            .requestMatchers(antMatcher("/swagger-ui/**")).permitAll()
                             .requestMatchers(antMatcher("/api/**"))
                             .access(allOf(fullyAuthenticated()));
                 }).csrf(AbstractHttpConfigurer::disable)
